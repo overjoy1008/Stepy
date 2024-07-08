@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>스테피 Stepy</title>
+    <link rel="stylesheet" href="/static/css/chatting_screen.css">
+</head>
+
+<body>
+    <div class="chatting-screen" id="chattingScreen">
+        <header class="header">
+            <h1 class="header-title">스테피 Stepy</h1>
+        </header>
+        <div class="chat-container" id="chatContainer"></div>
+        <div class="input-field">
+            <div class="input-row">
+                <div class="more-button">
+                    <div class="more-button-icon">
+                        <img src="../static/img/more_button.png" alt="사진 첨부 버튼">
+                    </div>
+                    <div class="modal-highlight1"></div>
+                </div>
+                <div class="input-label">
+                    <input type="text" id="chat-input" placeholder="질문 입력하기">
+                </div>
+                <div class="sending-button" id="sendButton">
+                    <img src="../static/img/sending_button.png" alt="전송 버튼">
+                </div>
+            </div>
+            <p class="disclaimer">스테피는 실수를 할 수 있습니다. 중요한 정보를 확인하세요.</p>
+        </div>
+
+        <!-- First Modal overlay -->
+        <div class="modal-overlay1" id="modalOverlay1">
+            <div class="modal-message1">
+                여기를 클릭해! 궁금한 문제를 알려줘!<br>
+                <span class="highlight-text">문제 사진을 촬영하거나 선택해줘!</span>
+            </div>
+        </div>
+
+        <!-- Second Modal overlay -->
+        <div class="modal-overlay2" id="modalOverlay2">
+            <div class="modal-message2">단원을 선택해줘!</div>
+            <div class="carousel-field">
+                <button class="carousel-button">역학</button>
+                <button class="carousel-button">열역학</button>
+                <button class="carousel-button">상대성 이론</button>
+                <button class="carousel-button">전자기학</button>
+                <button class="carousel-button">파동&이중성</button>
+            </div>
+        </div>
+
+        <!-- Third Modal overlay -->
+        <div class="modal-overlay3" id="modalOverlay3">
+            <div class="modal-message3">
+                <div>이제 <span class="highlight-text">자유롭게 질문해줘!</span></div>
+                <div>어디까지 풀었는지, 어떻게 접근했는지</div>
+                <div>알려주면 딱 맞는 힌트를 줄게!</div>
+                <br>
+                <div>참, 그리고 다른 문제가 궁금하면</div>
+                <div><span class="highlight-text">아까처럼 +버튼을 눌러줘~</span></div>
+            </div>
+        </div>
+
+        <!-- Image upload functionality -->
+        <div class="image-upload-overlay" id="imageUploadOverlay">
+            <div class="image-upload-modal" id="imageUploadModal">
+                <button class="image-upload-button" id="takePhotoButton">새로운 이미지 촬영</button>
+                <button class="image-upload-button" id="uploadImageButton">기존 이미지 업로드</button>
+            </div>
+
+            <div class="image-preview-container" id="imagePreviewContainer">
+                <img class="image-preview" id="imagePreview" src="" alt="Image preview">
+                <div class="image-preview-buttons">
+                    <button class="image-preview-button" id="confirmImageButton">전송</button>
+                    <button class="image-preview-button" id="cancelImageButton">취소</button>
+                </div>
+            </div>
+        </div>
+        
+        <input type="file" id="imageInput" accept="image/*" style="display: none;">
+
+        <div class="modal-overlay-carousel" id="modalOverlayCarousel">
+            <div class="modal-message-carousel">문제에 해당하는 주제를 선택해주세요!</div>
+            <div class="carousel-field">
+                <button class="carousel-button" data-topic="역학">역학</button>
+                <button class="carousel-button" data-topic="열역학">열역학</button>
+                <button class="carousel-button" data-topic="상대성 이론">상대성 이론</button>
+                <button class="carousel-button" data-topic="전자기학">전자기학</button>
+                <button class="carousel-button" data-topic="파동&이중성">파동&이중성</button>
+            </div>
+        </div>
+    </div>
+    <script src="/static/js/chatting_screen.js"></script>
+</body>
+
+</html>
