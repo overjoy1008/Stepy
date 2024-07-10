@@ -140,24 +140,14 @@ async def solver_llm(base64_image, solver_llm_prompt) -> str:
     #    		}"""
 
 
-async def get_chatgpt_response(base64_image: str, chat_history_string: str) -> str:
+async def get_chatgpt_response(base64_image: str, chat_history: list) -> str:
     if base64_image is None:
         return "+ 버튼으로 이미지를 먼저 첨부한 후 질문을 해줘!"
     # elif len(chat_history) == 0:
     #     return "문제를 빠르게 분석하고 있어! 잠깐 30초 정도만 기다려줘~"
     else:
-        # chat_history = json.loads(chat_history_string)
-        return chat_history_string
-
-        # history = ""
-        # for chat in chat_history_list:
-        #     history += "role:" + chat["role"] + "content:" + chat["content"] + "\n"
-        # return history
-
-    # elif len(chat_history) == 0:
-    #     return "문제를 빠르게 분석하고 있어! 잠깐 30초 정도만 기다려줘~"
-    # else:
-    #     history = ""
-    #     for chat in chat_history:
-    #         history.append("role:" + chat["role"] + "content:" + chat["content"] + "\n")
-    #     return history
+        # chat_history_list = json.loads(chat_history_string)
+        history_string = "Chat History:\n"
+        for i in range(0, len(chat_history)):
+            history_string += f"{i}th role: IDK\n{i}th content:{chat_history[i]}\n"
+        return history_string

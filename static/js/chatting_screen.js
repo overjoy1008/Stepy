@@ -156,24 +156,18 @@ window.addEventListener('load', function () {
                     addMessage("문제를 빠르게 분석하고 있어! 잠시만 30초 정도만 기다려줘~!", false);
                     return;
                 } else {
-                    chat_history.push({
-                        "role": "user",
-                        "content": message
-                    });
-                    console.log("chat_history[i] role:" + chat_history[chat_history.length-1]["role"] + "\nchat_history[i] content:" + chat_history[chat_history.length-1]["content"]);
+                    chat_history.push(message);
                     console.log("chat_history.length: ", chat_history.length);
                     
                 }
-                console.log('Sending image data:', base64ImageData);
+                console.log('Sending image data');
                 formData.append('base64_image', base64ImageData);
             } else {
                 console.log('No image data to send');
                 formData.append('base64_image', '');  // 이미지가 없을 경우 빈 문자열을 보냄
             }
-            // let chat_history_test = [{"role": "test", "content": "TEST"}, {"role": "test2", "content": "TEST2"}];
-            let chat_history_string = JSON.stringify(chat_history);
-            console.log('Sending chat history:', chat_history_string);
-            formData.append('chat_history_string', chat_history_string);
+
+            formData.append('chat_history', chat_history);
     
             const response = await fetch('/get-chatgpt-response/', {
                 method: 'POST',
@@ -193,7 +187,6 @@ window.addEventListener('load', function () {
         } finally {
             isWaitingForResponse = false;
             updateSendButtonState();
-            // base64ImageData = ''; // 이미지 데이터 초기화
         }
     }
     
@@ -402,19 +395,19 @@ window.addEventListener('load', function () {
             const result = await response.json();
             const solver_llm_response = result.response;
             console.log('ChatGPT - 4. solver_llm:\n', solver_llm_response);
-            system_prompt = {
-                "role": "system",
-                "content": `
-                [Role]
+            system_prompt = `[Role]
                 -너는 물리를 10년 이상 가르친 경험이 있는 친절하고 이해심 많은 물리1 Tutor야.
                 -학생들이 물리에 대해 질문을 할 때, 친절하게 답변해주고, 가능한 한 쉽게 이해할 수 있도록 설명해줘.
                 -답을 말해주는 것이 아닌 답변으로 유도될 수 있도록 되묻는 답변을 해줘.
-            
+
+                [solver_llm_response]
+                ${solver_llm_response}
+
                 [Basic information]
                 1. 학생들의 질문에 대해 친절하고 명확하게 답변해.
                 2. 복잡한 개념은 쉽게 이해할 수 있도록 풀어서 설명해.
                 3. STEP BY STEP으로 설명해줘야 해. 총 STEP은 3STEP이야.
-                4. ${solver_llm_response}에 근거하여 답변해.
+                4. {solver_llm_response}에 근거하여 답변해.
                 5. 학생들이 스스로 생각할 수 있게 질문을 생성해.
             
                 [질문 생성기]
@@ -425,49 +418,26 @@ window.addEventListener('load', function () {
                     -1. 개념에 대해서 질문한다.
                     -2. 조건에 대해서 질문한다.
                 -[STEP1]
-                    -${solver_llm_response}내의 "ㄱ_풀이과정"을 이해시키기 위한 단계이다.
+                    -{solver_llm_response}내의 "ㄱ_풀이과정"을 이해시키기 위한 단계이다.
                     -"ㄱ_풀이과정"내의 "STEP"들을 토대로 질문을 생성한다.
                     -STEP1이 해결되지 않으면 다시 STEP1을 상세하게 설명해준다.
                     -학생이 이해가 안료된 경우만 다음 STEP2으로 넘어간다.
                 -[STEP2]
-                    -${solver_llm_response}내의 "ㄴ_풀이과정"을 이해시키기 위한 단계이다.
+                    -{solver_llm_response}내의 "ㄴ_풀이과정"을 이해시키기 위한 단계이다.
                     -"ㄴ_풀이과정"내의 "STEP"들을 토대로 질문을 생성한다.
                     -STEP2이 해결되지 않으면 다시 STEP2을 상세하게 설명해준다.
                     -학생이 이해가 안료된 경우만 다음 STEP3으로 넘어간다.
                 -[STEP3]
-                    -${solver_llm_response}내의 "ㄷ_풀이과정"을 이해시키기 위한 단계이다.
+                    -{solver_llm_response}내의 "ㄷ_풀이과정"을 이해시키기 위한 단계이다.
                     -"ㄷ_풀이과정"내의 "STEP"들을 토대로 질문을 생성한다.
-                    -STEP3이 해결되지 않으면 다시 STEP3을 상세하게 설명해준다.
-                `
-            };
+                    -STEP3이 해결되지 않으면 다시 STEP3을 상세하게 설명해준다.`;
             chat_history.push(system_prompt);
-            console.log('chat_history[0] role:' + chat_history[0]["role"] + "\nchat_history[0] content:" + chat_history[0]["content"]);
             console.log("chat_history.length: ", chat_history.length);
-            
-            // addMessage(solver_llm_response, false);
         } catch (error) {
             console.error('Error fetching ChatGPT response:', error);
         } finally {
             isWaitingForResponse = false;
         }
     }
-    
-
-    // function finding_problem_type(finding_response) {
-    //     const formData = new URLSearchParams();
-    //     formData.append('finding_response', finding_response);
-    //     const response = fetch('/problem-type/', {
-    //         method: 'POST',
-    //         headers: {
-    //             'Content-Type': 'application/x-www-form-urlencoded',
-    //         },
-    //         body: formData
-    //     });
-    //     const result = response.json();
-    //     const problem_type = result.response;
-
-    //     console.log('ChatGPT - 2. problem_type:\n', problem_type);
-    // };
-
 
 });
