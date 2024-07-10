@@ -59,7 +59,7 @@ async def solver_llm_endpoint(
 async def get_chatgpt_response_endpoint(
     request: Request,
     base64_image: str = Form(None),
-    chat_history_string: str = Form(...),
+    chat_history: list = Form(...),
 ):
-    response = await get_chatgpt_response(base64_image, chat_history_string)
+    response = await get_chatgpt_response(base64_image, chat_history)
     return JSONResponse({"response": response})
