@@ -1,3 +1,21 @@
+import { base64ImageData } from "/static/js/chatting_screen.js";
+
+let system_prompt = '';
+
+// export let test_string = ['1','2','3'];
+
+export let isWaitingForResponse = false;
+export let chat_history = '';
+
+export function binary_converter() {
+    if (isWaitingForResponse) isWaitingForResponse = false;
+    else isWaitingForResponse = true;
+}
+
+export function chat_history_append(message_str) {
+    chat_history += message_str;
+}
+
 export async function finding_llm_response(base64ImageData) {
     try {
         const formData = new URLSearchParams();
@@ -23,48 +41,19 @@ export async function finding_llm_response(base64ImageData) {
     }
 };
 
-// function finding_problem_type(findingResponse) {
-//     const findingData = JSON.parse(findingResponse);
-//     const problem_type = findingData["유형"];
-//     console.log('ChatGPT - 2. problem_type:\n', problem_type);
-//     choose_prompt(problem_type);
-// }
-
 function finding_problem_type(findingResponse) {
     const findingData = JSON.parse(findingResponse);
     const problem_type = findingData["유형"];
-    //-----KHJ_i-----//
     const choice_form = findingData["choice_form"]
     const problem_structure = findingData["Problem structure"]
-    const problem_description = JSON.parse(problem_structure)
+    const problem_description = problem_structure["Problem description"]
     console.log('ChatGPT - 2. choice_form:\n', choice_form)
     console.log('ChatGPT - 2. Problem structure:\n', problem_structure)
     console.log('ChatGPT - 2. Problem description:\n', problem_description)
     console.log('ChatGPT - 2. problem_type:\n', problem_type);
     choose_prompt(problem_type, choice_form, problem_description);
-    //-----KHJ_f-----//
 }
 
-// async function choose_prompt(problemType) {
-//     const formData = new URLSearchParams();
-//     formData.append('problem_type', problemType);
-
-//     const response = await fetch('/choose-prompt/', {
-//         method: 'POST',
-//         headers: {
-//             'Content-Type': 'application/x-www-form-urlencoded',
-//         },
-//         body: formData
-//     });
-
-//     const result = await response.json();
-//     const solver_llm_prompt = result.prompt;
-//     console.log('ChatGPT - 3. choose_prompt:\n', solver_llm_prompt);
-//     // console.log('ChatGPT - 3. choose_prompt:\n', solver_llm_prompt);
-//     solver_llm_response(base64ImageData, solver_llm_prompt);
-// }
-
-//-----KHJ_i-----//
 async function choose_prompt(problemType, choice_form, problemdescription) {
     const formData = new URLSearchParams();
     formData.append('problem_type', problemType);
@@ -80,11 +69,14 @@ async function choose_prompt(problemType, choice_form, problemdescription) {
 
     const result = await response.json();
     const solver_llm_prompt = result.prompt;
-    console.log('ChatGPT - 3. choose_prompt:\n', solver_llm_prompt[0] + solver_llm_prompt[1] + solver_llm_prompt[2] + solver_llm_prompt[3]);
-    // console.log('ChatGPT - 3. choose_prompt:\n', solver_llm_prompt);
+    // let solver_llm_prompt_mini = ""
+    // for (let i = 0; i < 800; i++) {
+    //     solver_llm_prompt_mini += solver_llm_prompt[i]
+    // }
+    // console.log('ChatGPT - 3. choose_prompt:\n', solver_llm_prompt_mini);
+    console.log('ChatGPT - 3. choose_prompt:\n', solver_llm_prompt);
     solver_llm_response(base64ImageData, solver_llm_prompt);
 }
-//-----KHJ_f-----//
 
 async function solver_llm_response(base64ImageData, solver_llm_prompt) {
     try {
@@ -139,11 +131,7 @@ async function solver_llm_response(base64ImageData, solver_llm_prompt) {
                 -{solver_llm_response}내의 "ㄷ_풀이과정"을 이해시키기 위한 단계이다.
                 -"ㄷ_풀이과정"내의 "STEP"들을 토대로 질문을 생성한다.
                 -STEP3이 해결되지 않으면 다시 STEP3을 상세하게 설명해준다.`;
-        chat_history.push(system_prompt);
-        // console.log('chat_history[0] role:' + chat_history[0]["role"] + "\nchat_history[0] content:" + chat_history[0]["content"]);
-        console.log("chat_history.length: ", chat_history.length);
-        
-        // addMessage(solver_llm_response, false);
+        chat_history += 'system|'+system_prompt+'|';
     } catch (error) {
         console.error('Error fetching ChatGPT response:', error);
     } finally {

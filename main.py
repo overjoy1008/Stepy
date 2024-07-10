@@ -6,11 +6,40 @@ import shutil
 import os
 from get_response import finding_llm, choose_prompt, solver_llm, get_chatgpt_response
 
+# from pydantic import BaseModel  #####
+# from fastapi.middleware.cors import CORSMiddleware  #####
+# from typing import List  #####
+
 app = FastAPI()
+
+# app.add_middleware(
+#     CORSMiddleware,
+#     allow_origins=["*"],
+#     allow_credentials=True,
+#     allow_methods=["*"],
+#     allow_headers=["*"],
+# )  #####
 
 templates = Jinja2Templates(directory="templates")
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
+
+###############################################
+# class MessageModel(BaseModel):
+#     role: str
+#     content: str
+
+# class DataModel(BaseModel):
+#     data: List[MessageModel]
+
+# @app.post("/process-data")
+# async def process_data(data: DataModel):
+#     # 데이터를 처리하는 로직
+#     processed_data = data.data  # 예: [{'role': 'system', 'content': '~~~'}, ...]
+#     return processed_data
+
+################################################
+
 
 # Directory to save uploaded images
 UPLOAD_DIR = "static/uploads"
@@ -42,8 +71,12 @@ async def finding_llm_endpoint(request: Request, base64_image: str = Form(None))
 
 
 @app.post("/choose-prompt/")
-async def choose_prompt_endpoint(problem_type: str = Form(...)):
-    prompt = choose_prompt(problem_type)
+async def choose_prompt_endpoint(
+    problem_type: str = Form(...),
+    choice_form: str = Form(...),
+    porblem_description: str = Form(...),
+):
+    prompt = choose_prompt(problem_type, choice_form, porblem_description)
     return JSONResponse({"prompt": prompt})
 
 
@@ -59,7 +92,7 @@ async def solver_llm_endpoint(
 async def get_chatgpt_response_endpoint(
     request: Request,
     base64_image: str = Form(None),
-    chat_history: list = Form(...),
+    chat_history: str = Form(...),
 ):
     response = await get_chatgpt_response(base64_image, chat_history)
     return JSONResponse({"response": response})

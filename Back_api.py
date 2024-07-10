@@ -1,9 +1,5 @@
-import uuid
 import openai
-import os
 from openai import OpenAI
-import json
-import base64
 from io import BytesIO
 import pinecone
 from pinecone import Pinecone
@@ -44,6 +40,18 @@ def gpt_calling_image(base64_image, prompt):
         temperature=0,
         top_p=0,
     )
+    return response.choices[0].message.content
+
+
+def gpt_with_context(chat_history_list):
+    response = client.chat.completions.create(
+        model="gpt-4o-2024-05-13",
+        messages=chat_history_list,
+        max_tokens=4000,
+        temperature=0,
+        top_p=0,
+    )
+    return response.choices[0].message.content
 
 
 def find_RAG(problem_description):

@@ -1,4 +1,20 @@
+import { sendMessage } from "/static/js/send_message.js";
+import { updateSendButtonState } from "/static/js/send_message.js";
+
 import { finding_llm_response } from "/static/js/analyze_problem.js";
+import { isWaitingForResponse } from "/static/js/analyze_problem.js";
+
+export let base64ImageData = '';
+export const chatInput = document.getElementById('chat-input');
+
+export function addMessage(message, isUser) {
+    const messageElement = document.createElement('div');
+    messageElement.classList.add('message');
+    messageElement.classList.add(isUser ? 'user-message' : 'ai-message');
+    messageElement.textContent = message;
+    chatContainer.appendChild(messageElement);
+    chatContainer.scrollTop = chatContainer.scrollHeight;
+}
 
 window.addEventListener('load', function () {
     const chattingScreen = document.getElementById('chattingScreen');
@@ -8,9 +24,8 @@ window.addEventListener('load', function () {
     const modalOverlay3 = document.getElementById('modalOverlay3');
     const chatContainer = document.getElementById('chatContainer');
 
-    const chatInput = document.getElementById('chat-input');
+    // const chatInput = document.getElementById('chat-input');
     const sendButton = document.getElementById('sendButton');
-    const sendButtonImage = sendButton.querySelector('img');
 
     const moreButton = document.querySelector('.more-button');
     const imageUploadOverlay = document.getElementById('imageUploadOverlay');
@@ -29,12 +44,12 @@ window.addEventListener('load', function () {
 
     let currentModal = 1;
     let isTransitioning = false;
-    let isWaitingForResponse = false;
+    // let isWaitingForResponse = false;
     let isImageCapture = false;
     let selectedTopic = '';
     let isCarouselFromImageUpload = false;
-    let base64ImageData = '';
-    let chat_history = '';
+    // let base64ImageData = '';
+    // let chat_history = '';
 
     disableChatInputAndMoreButton();
 
@@ -107,90 +122,69 @@ window.addEventListener('load', function () {
         moreButton.style.pointerEvents = 'auto';
     }
 
-    function addMessage(message, isUser) {
-        const messageElement = document.createElement('div');
-        messageElement.classList.add('message');
-        messageElement.classList.add(isUser ? 'user-message' : 'ai-message');
-        messageElement.textContent = message;
-        chatContainer.appendChild(messageElement);
-        chatContainer.scrollTop = chatContainer.scrollHeight;
-    }
+    // function addMessage(message, isUser) {
+    //     const messageElement = document.createElement('div');
+    //     messageElement.classList.add('message');
+    //     messageElement.classList.add(isUser ? 'user-message' : 'ai-message');
+    //     messageElement.textContent = message;
+    //     chatContainer.appendChild(messageElement);
+    //     chatContainer.scrollTop = chatContainer.scrollHeight;
+    // }
 
-    function disableSendButton() {
-        sendButton.disabled = true;
-        sendButton.style.backgroundColor = '#EBEBEB';
-        sendButton.style.pointerEvents = 'none';
-        sendButtonImage.src = '../static/img/sending_button_off.png';
-    }
-
-    function enableSendButton() {
-        sendButton.disabled = false;
-        sendButton.style.backgroundColor = '#3182F6';
-        sendButton.style.pointerEvents = 'auto';
-        sendButtonImage.src = '../static/img/sending_button.png';
-    }
-
-    function updateSendButtonState() {
-        if (chatInput.value.trim() === '' || isWaitingForResponse) {
-            disableSendButton();
-        } else {
-            enableSendButton();
-        }
-    }
 
     //------------| Sending & Receiving Chat |------------//
 
-    async function sendMessage() {
-        if (isWaitingForResponse || chatInput.value.trim() === '') return;
-        const message = chatInput.value.trim();
-        console.log('Sending message:', message);
-        addMessage(message, true);
-        chatInput.value = '';
-        isWaitingForResponse = true;
-        updateSendButtonState();
+    // async function sendMessage() {
+    //     if (isWaitingForResponse || chatInput.value.trim() === '') return;
+    //     const message = chatInput.value.trim();
+    //     console.log('Sending message:', message);
+    //     addMessage(message, true);
+    //     chatInput.value = '';
+    //     isWaitingForResponse = true;
+    //     updateSendButtonState();
     
-        try {
-            const formData = new URLSearchParams();
+    //     try {
+    //         const formData = new URLSearchParams();
 
-            if (base64ImageData) {
-                if (chat_history.length === 0) {
-                    console.log("chat_history.length: ", chat_history.length);
-                    addMessage("문제를 빠르게 분석하고 있어! 잠시만 30초 정도만 기다려줘~!", false);
-                    return;
-                } else {
-                    chat_history.push(message);
-                    console.log("chat_history.length: ", chat_history.length);
+    //         if (base64ImageData) {
+    //             if (chat_history.length === 0) {
+    //                 console.log("chat_history.length: ", chat_history.length);
+    //                 addMessage("문제를 빠르게 분석하고 있어! 잠시만 30초 정도만 기다려줘~!", false);
+    //                 return;
+    //             } else {
+    //                 chat_history.push(message);
+    //                 console.log("chat_history.length: ", chat_history.length);
                     
-                }
-                console.log('Sending image data');
-                formData.append('base64_image', base64ImageData);
-            } else {
-                console.log('No image data to send');
-                formData.append('base64_image', '');  // 이미지가 없을 경우 빈 문자열을 보냄
-            }
+    //             }
+    //             console.log('Sending image data');
+    //             formData.append('base64_image', base64ImageData);
+    //         } else {
+    //             console.log('No image data to send');
+    //             formData.append('base64_image', '');  // 이미지가 없을 경우 빈 문자열을 보냄
+    //         }
 
-            formData.append('chat_history', chat_history);
+    //         formData.append('chat_history', chat_history);
     
-            const response = await fetch('/get-chatgpt-response/', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-                body: formData
-            });
+    //         const response = await fetch('/get-chatgpt-response/', {
+    //             method: 'POST',
+    //             headers: {
+    //                 'Content-Type': 'application/x-www-form-urlencoded',
+    //             },
+    //             body: formData
+    //         });
     
-            const result = await response.json();
-            const gpt_message = result.response;
-            console.log('Received ChatGPT response:', gpt_message);
-            addMessage(gpt_message, false);
-        } catch (error) {
-            console.error('Error fetching ChatGPT response:', error);
-            addMessage('Error fetching response. Please try again.', false);
-        } finally {
-            isWaitingForResponse = false;
-            updateSendButtonState();
-        }
-    }
+    //         const result = await response.json();
+    //         const gpt_message = result.response;
+    //         console.log('Received ChatGPT response:', gpt_message);
+    //         addMessage(gpt_message, false);
+    //     } catch (error) {
+    //         console.error('Error fetching ChatGPT response:', error);
+    //         addMessage('Error fetching response. Please try again.', false);
+    //     } finally {
+    //         isWaitingForResponse = false;
+    //         updateSendButtonState();
+    //     }
+    // }
     
     
     sendButton.addEventListener('click', sendMessage);
