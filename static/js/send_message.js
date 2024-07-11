@@ -1,26 +1,39 @@
 import { addMessage } from "/static/js/chatting_screen.js";
 import { base64ImageData } from "/static/js/chatting_screen.js";
 import { chatInput } from "/static/js/chatting_screen.js";
+import { addSequentialMessages } from "/static/js/chatting_screen.js";
+import { disableChatInputAndMoreButton } from "/static/js/chatting_screen.js";
+import { enableChatInputAndMoreButton } from "/static/js/chatting_screen.js";
 
 import { chat_history } from "/static/js/analyze_problem.js";
-import { isWaitingForResponse } from "/static/js/analyze_problem.js";
-import { binary_converter } from "/static/js/analyze_problem.js";
 import { chat_history_append } from "/static/js/analyze_problem.js";
 
-let test_string = [
-    {'role': 'system', 'content': '~~~'},
-    {'role': 'user', 'content': '~~~'},
-    {'role': 'assistant', 'content': '~~~'}
-];
 
 const sendButtonImage = sendButton.querySelector('img');
+const popupMessage = document.getElementById('popupMessage'); // NEW
 
-export function updateSendButtonState() {
-    if (chatInput.value.trim() === '' || isWaitingForResponse) {
-        disableSendButton();
-    } else {
-        enableSendButton();
-    }
+let isWaitingForResponse = false;
+let isFirstChat = true; // NEW
+let isImageUploaded = false; // NEW
+
+export function setImageUploaded(binary) {
+    isImageUploaded = binary;
+}
+
+
+// 백엔드 상태값 전달 예시
+const backendStatuses = [  // NEW
+    { type: 'STEP_UPDATE', step: 1 },
+    // { type: 'STEP_UPDATE', step: 2 },
+    // { type: 'STEP_UPDATE', step: 3 },
+    // { type: 'PROCESSING', message: "핵심 개념 찾는 중" },
+    // { type: 'PROCESSING', message: "풀이 step 구성 중" },
+    // { type: 'PROCESSING', message: "✅설명 준비 완료!" },
+];
+
+
+export function setWaitingForResponse(binary) {
+    isWaitingForResponse = binary;
 }
 
 export function disableSendButton() {
@@ -37,84 +50,182 @@ export function enableSendButton() {
     sendButtonImage.src = '../static/img/sending_button.png';
 }
 
+export function updateSendButtonState() {
+    if (chatInput.value.trim() === '' || isWaitingForResponse) {
+        disableSendButton();
+    } else {
+        enableSendButton();
+    }
+}
+
+
+function showPopupMessage() {  // NEW
+    // console.log('Showing popup message');
+    popupMessage.style.display = 'block';
+    setTimeout(() => {
+        popupMessage.style.display = 'none';
+    }, 1500);
+}
+
+export function handleSendAction() {  // NEW
+    // console.log('Handle send action called');
+    // console.log('isImageUploaded:', isImageUploaded);
+    // console.log('isWaitingForResponse:', isWaitingForResponse);
+    // console.log('chatInput value:', chatInput.value.trim());
+
+    if (!isImageUploaded) {
+        // console.log('Condition met for showing popup');
+        showPopupMessage();
+    } else if (!isWaitingForResponse && chatInput.value.trim() !== '') {
+        // console.log('Condition met for sending message');
+        sendMessage();
+    } else {
+        console.log('No action taken');
+    }
+}
+
+function addStepLabel(step) {  // NEW
+    const stepLabel = document.createElement('div');
+    stepLabel.classList.add('step-label');
+    stepLabel.textContent = `${step}/${maxSteps} 단계`;
+    chatContainer.appendChild(stepLabel);
+    chatContainer.scrollTop = chatContainer.scrollHeight;
+}
+
+function handleBackendStatus(status) {  // NEW
+    if (status.type === 'STEP_UPDATE') {
+        addStepLabel(status.step);
+    } else if (status.type === 'PROCESSING') {
+        addMessage(status.message, false);
+    }
+}
+
+function simulateBackendProcess() {  // NEW
+    let statusIndex = 0;
+    
+    function sendNextStatus() {
+        if (statusIndex < backendStatuses.length) {
+            const status = backendStatuses[statusIndex];
+            handleBackendStatus(status);
+            statusIndex++;
+            setTimeout(sendNextStatus, 2000); // Simulate delay between statuses
+        } else {
+            const gpt_message = '이민찬이 만든 개멋진 프론트를 보십시오';
+            addMessage(gpt_message, false);
+            setWaitingForResponse(false); // isWaitingForResponse= false;
+            updateSendButtonState();
+        }
+    }
+
+    sendNextStatus();
+}
+
+const messages = [
+    "핵심 개념 찾는 중",
+    "풀이 step 구성 중",
+    "✅설명 준비 완료!"
+];
+
+
+import { signalPromise } from "/static/js/analyze_problem.js";
+
 export async function sendMessage() {
     if (isWaitingForResponse || chatInput.value.trim() === '') return;
     const message = chatInput.value.trim();
     console.log('Sending message:', message);
     addMessage(message, true);
     chatInput.value = '';
-    binary_converter(); // isWaitingForResponse = true;
+    setWaitingForResponse(true); // isWaitingForResponse = true;
     updateSendButtonState();
+
+    /////////////////////////////////
+
+    // if (isImageUploaded && isFirstChat) {
+    //     isFirstChat = false;
+        
+    //     disableChatInputAndMoreButton();
+
+    //     setTimeout(() => {
+    //         realBackendProcess();
+    //     }, 1000);
+    // } else {
+    //     setTimeout(() => {
+    //         const gpt_message = '두번째 이상부터의 채팅';
+    //         addMessage(gpt_message, false);
+    //         setWaitingForResponse(false); // isWaitingForResponse = false;
+    //         updateSendButtonState();
+    //     }, 1000);
+    // }
+    /////////////////////////////////
 
     try {
         const formData = new URLSearchParams();
 
-        if (!base64ImageData) {
-            console.log('No image data to send');
-            console.log("chat_history.length: ", chat_history.length);
-            addMessage("+ 버튼으로 이미지를 먼저 첨부한 후 질문을 해줘!", false);
-            return;
-        }
-        else {
-            if (chat_history.length === 0) {
-                console.log("chat_history.length: ", chat_history.length);
-                addMessage("문제를 빠르게 분석하고 있어! 잠시만 30초 정도만 기다려줘~!", false);
-                return;
-            } else {
-                chat_history_append('user|'+ message +'|');
-                console.log("chat_history: ", chat_history);
-                // console.log("chat_history.length: ", chat_history.length);
-            }
+        if (isImageUploaded && isFirstChat) {
+            isFirstChat = false;
+
+            addSequentialMessages(messages, 10000);
+            
+            // setTimeout(() => {
+            // console.log("chat_history.length: ", chat_history.length);
+            // addMessage("문제를 빠르게 분석하고 있어! 잠시만 30초 정도만 기다려줘~!", false);
+            // return;
+            await signalPromise;
+            chat_history_append('user|'+ message +'|');
+            disableChatInputAndMoreButton();
+            console.log("chat_history: ", chat_history);
             console.log('Sending image data');
             formData.append('base64_image', base64ImageData);
+            
+
+            formData.append('chat_history', chat_history);
+
+            const response = await fetch('/get-chatgpt-response/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: formData
+            });
+
+            const result = await response.json();
+            const gpt_response = result.response;
+            
+            console.log('Received ChatGPT response:', gpt_response);
+            addMessage(gpt_response, false);
+            chat_history_append('assistant|'+ gpt_response +'|');
+            enableChatInputAndMoreButton();S
+
+            // }, 1000);
+        } else {
+            chat_history_append('user|'+ message +'|');
+            console.log("chat_history: ", chat_history);
+            console.log('Sending image data');
+            formData.append('base64_image', base64ImageData);
+            
+
+            formData.append('chat_history', chat_history);
+
+            const response = await fetch('/get-chatgpt-response/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: formData
+            });
+
+            const result = await response.json();
+            const gpt_response = result.response;
+            
+            console.log('Received ChatGPT response:', gpt_response);
+            addMessage(gpt_response, false);
+            chat_history_append('assistant|'+ gpt_response +'|');
         }
-
-        formData.append('chat_history', chat_history);
-
-        const response = await fetch('/get-chatgpt-response/', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-            },
-            body: formData
-        });
-
-        const result = await response.json();
-        const gpt_response = result.response;
-        
-        console.log('Received ChatGPT response:', gpt_response);
-        addMessage(gpt_response, false);
-        chat_history_append('assistant|'+ gpt_response +'|');
     } catch (error) {
         console.error('Error fetching ChatGPT response:', error);
         addMessage('Error fetching response. Please try again.', false);
     } finally {
-        binary_converter(); // isWaitingForResponse = false;
+        setWaitingForResponse(false); // isWaitingForResponse = false;
         updateSendButtonState();
     }
 };
-
-// import OpenAI from "openai";
-
-// let OPENAI_API_KEY = ""
-
-// async function get_chatgpt_response(chat_history) {
-//     const openai = new OpenAI({
-//         apiKey: OPENAI_API_KEY,
-//     });
-            
-//     const response = await openai.chat.completions.create({
-//         model: "gpt-4o-2024-05-13",
-//         messages: chat_history,
-//         temperature: 0,
-//         max_tokens: 4000,
-//         top_p: 0,
-//         // frequency_penalty: 0,
-//         // presence_penalty: 0,
-//     });
-
-//     console.log("TUTOR RESPONSE: ", response.data.choices[0].message.content);
-
-//     return response.data.choices[0].message.content;
-    
-// }

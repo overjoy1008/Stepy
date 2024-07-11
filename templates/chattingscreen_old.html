@@ -4,15 +4,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Stepy</title>
+    <title>스테피 Stepy</title>
     <link rel="stylesheet" href="/static/css/chatting_screen.css">
 </head>
 
 <body>
     <div class="chatting-screen" id="chattingScreen">
         <header class="header">
-            <img src="../static/img/logo.png" alt="Logo">
-            <h1 class="header-title">Stepy</h1>
+            <h1 class="header-title">스테피 Stepy</h1>
         </header>
         <div class="chat-container" id="chatContainer"></div>
         <div class="input-field">
@@ -30,7 +29,7 @@
                     <img src="../static/img/sending_button.png" alt="전송 버튼">
                 </div>
             </div>
-            <p class="disclaimer">Stepy는 실수를 할 수 있습니다. 중요한 정보를 확인하세요.</p>
+            <p class="disclaimer">스테피는 실수를 할 수 있습니다. 중요한 정보를 확인하세요.</p>
         </div>
 
         <!-- First Modal overlay -->
@@ -65,21 +64,19 @@
             </div>
         </div>
 
-        <div class="image-first-popup-message" id="popupMessage">문제 사진을 업로드 해주세요!</div>
-
         <!-- Image upload functionality -->
         <div class="image-upload-overlay" id="imageUploadOverlay">
             <div class="image-upload-modal" id="imageUploadModal">
                 <button class="image-upload-button" id="takePhotoButton">새로운 이미지 촬영</button>
                 <button class="image-upload-button" id="uploadImageButton">기존 이미지 업로드</button>
             </div>
-        </div>
 
-        <div class="image-preview-container" id="imagePreviewContainer">
-            <img class="image-preview" id="imagePreview" src="" alt="Image preview">
-            <div class="image-preview-buttons">
-                <button class="image-preview-button" id="confirmImageButton">전송</button>
-                <button class="image-preview-button" id="cancelImageButton">취소</button>
+            <div class="image-preview-container" id="imagePreviewContainer">
+                <img class="image-preview" id="imagePreview" src="" alt="Image preview">
+                <div class="image-preview-buttons">
+                    <button class="image-preview-button" id="confirmImageButton">전송</button>
+                    <button class="image-preview-button" id="cancelImageButton">취소</button>
+                </div>
             </div>
         </div>
         
@@ -96,8 +93,10 @@
             </div>
         </div>
     </div>
-    <script type="module" src="/static/js/send_message.js"></script>
+
     <script type="module" src="/static/js/analyze_problem.js"></script>
     <script type="module" src="/static/js/chatting_screen.js"></script>
+
 </body>
+
 </html>

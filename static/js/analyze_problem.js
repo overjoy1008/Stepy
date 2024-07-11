@@ -1,23 +1,29 @@
 import { base64ImageData } from "/static/js/chatting_screen.js";
+// import { disableChatInputAndMoreButton } from "/static/js/chatting_screen.js";
+import { enableChatInputAndMoreButton } from "/static/js/chatting_screen.js";
+import { addSequentialMessages } from "/static/js/chatting_screen.js";
+
+import { setWaitingForResponse } from "/static/js/send_message.js";
+
 
 let system_prompt = '';
 
 // export let test_string = ['1','2','3'];
 
-export let isWaitingForResponse = false;
 export let chat_history = '';
 
-export function binary_converter() {
-    if (isWaitingForResponse) isWaitingForResponse = false;
-    else isWaitingForResponse = true;
+export function chat_history_append(message_str) {
+    chat_history+= message_str;
 }
 
-export function chat_history_append(message_str) {
-    chat_history += message_str;
-}
+let resolveSignal;
+const signalPromise = new Promise((resolve) => {
+    resolveSignal = resolve;
+});
 
 export async function finding_llm_response(base64ImageData) {
     try {
+        // addSequentialMessages(messages, 1000);
         const formData = new URLSearchParams();
         console.log('Sending image data:', base64ImageData);
         formData.append('base64_image', base64ImageData);
@@ -37,7 +43,7 @@ export async function finding_llm_response(base64ImageData) {
     } catch (error) {
         console.error('Error fetching ChatGPT response:', error);
     } finally {
-        isWaitingForResponse = false;
+        setWaitingForResponse(false);
     }
 };
 
@@ -92,6 +98,8 @@ async function solver_llm_response(base64ImageData, solver_llm_prompt) {
             body: formData
         });
 
+        
+
         const result = await response.json();
         const solver_llm_response = result.response;
         console.log('ChatGPT - 4. solver_llm:\n', solver_llm_response);
@@ -131,13 +139,20 @@ async function solver_llm_response(base64ImageData, solver_llm_prompt) {
                 -{solver_llm_response}내의 "ㄷ_풀이과정"을 이해시키기 위한 단계이다.
                 -"ㄷ_풀이과정"내의 "STEP"들을 토대로 질문을 생성한다.
                 -STEP3이 해결되지 않으면 다시 STEP3을 상세하게 설명해준다.`;
-        chat_history += 'system|'+system_prompt+'|';
+        chat_history = 'system|'+system_prompt+'|' + chat_history;
+        console.log('signal 함수 호출됨');
+        resolveSignal();
+        
+        // addSequentialMessages(messages, 1000);
     } catch (error) {
         console.error('Error fetching ChatGPT response:', error);
     } finally {
-        isWaitingForResponse = false;
+        enableChatInputAndMoreButton();
+        setWaitingForResponse(false);
     }
 }
+
+export { signalPromise };
 
 
 // function finding_problem_type(finding_response) {
