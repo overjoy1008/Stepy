@@ -18,7 +18,6 @@ PINECONE_API_KEY = os.getenv("PINECONE_API_KEY")
 # 언어 모델 초기화
 # llm = OpenAI(temperature=0.7)
 client = OpenAI(api_key=OPENAI_API_KEY)
-api_key = OPENAI_API_KEY
 pc = Pinecone(api_key=PINECONE_API_KEY)
 index = pc.Index("problem")
 

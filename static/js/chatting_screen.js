@@ -8,11 +8,17 @@ import { finding_llm_response } from "/static/js/analyze_problem.js";
 
 export let base64ImageData = '';
 export const chatInput = document.getElementById('chat-input');
+
+
 const moreButton = document.querySelector('.more-button');
 
 let lastMessageSender = null;
 
-//------------| Chatting Status |------------//
+
+
+
+
+//---------------------------| Chatting Status |---------------------------//
     
 export function disableChatInputAndMoreButton() {
     chatInput.disabled = true;
@@ -24,7 +30,11 @@ export function enableChatInputAndMoreButton() {
     moreButton.style.pointerEvents = 'auto';
 }
 
-//------------| SIMULATION |------------//
+
+
+
+
+//---------------------------| Simulation |---------------------------//
 
 function createMessageElement(isUser) {
     const messageElement = document.createElement('div');
@@ -60,14 +70,68 @@ function createMessageElement(isUser) {
     return messageElement;
 }
 
+
+
+
+
+//---------------------------| Markdown Parsing |---------------------------//
+function parseMarkdown(markdown) {
+    // Bold (**text** or __text__)
+    markdown = markdown.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+    // markdown = markdown.replace(/__(.*?)__/g, '<strong>$1</strong>');
+    
+    // Italic (*text* or _text_)
+    markdown = markdown.replace(/\*(.*?)\*/g, '<em>$1</em>');
+    // markdown = markdown.replace(/_(.*?)_/g, '<em>$1</em>');
+
+    // Headers (## Header)
+    markdown = markdown.replace(/^###### (.*$)/gim, '<h6>$1</h6>');
+    markdown = markdown.replace(/^##### (.*$)/gim, '<h5>$1</h5>');
+    markdown = markdown.replace(/^#### (.*$)/gim, '<h4>$1</h4>');
+    markdown = markdown.replace(/^### (.*$)/gim, '<h3>$1</h3>');
+    markdown = markdown.replace(/^## (.*$)/gim, '<h2>$1</h2>');
+    markdown = markdown.replace(/^# (.*$)/gim, '<h1>$1</h1>');
+
+    // Blockquote
+    markdown = markdown.replace(/^\> (.*$)/gim, '<blockquote>$1</blockquote>');
+
+    // Ordered list
+    markdown = markdown.replace(/^\d+\.\s+(.*$)/gim, '<ol><li>$1</li></ol>');
+    markdown = markdown.replace(/<\/li><\/ol>\n<ol><li>/g, '</li><li>');
+
+    // Unordered list
+    markdown = markdown.replace(/\*\s+(.*$)/gim, '<ul><li>$1</li></ul>');
+    markdown = markdown.replace(/\-\s+(.*$)/gim, '<ul><li>$1</li></ul>');
+    markdown = markdown.replace(/<\/li><\/ul>\n<ul><li>/g, '</li><li>');
+
+
+    // Paragraph
+    markdown = markdown.replace(/\n$/gim, '<br />');
+    markdown = markdown.replace(/^(?!<h|<blockquote|<li|<ul|<ol)(.*$)/gim, '<p>$1</p>');
+
+    return markdown.trim();
+}
+
+
+
+
+
+//---------------------------| Add Message |---------------------------//
 export function addMessage(message, isUser) {
+    console.log('original message: ', message);
+    const result = parseMarkdown(message);
+    console.log('markdown message: ', result);
+    console.log('markdown message v2: ', parseMarkdown2(message));
+
     const messageElement = createMessageElement(isUser);
 
     if (isUser) {
         messageElement.textContent = message;
     } else {
         const messageContent = messageElement.querySelector('.ai-message-content');
-        messageContent.textContent = message;
+        // 여기부터 코드 수정
+        messageContent.innerHTML = result; // textContent 대신 innerHTML로 변경하여 HTML 태그를 해석하도록 함.
+        MathJax.typesetPromise([messageContent]); // MathJax를 사용하여 수식을 렌더링합니다.
     }
 
     chatContainer.appendChild(messageElement);
@@ -76,6 +140,11 @@ export function addMessage(message, isUser) {
     lastMessageSender = isUser ? 'user' : 'ai';
 }
 
+
+
+
+
+//---------------------------| Loading Component |---------------------------//
 let resolveSequentialSignal;
 const sequentialSignalPromise = new Promise((resolve) => {
     resolveSequentialSignal = resolve;
@@ -123,6 +192,21 @@ export { sequentialSignalPromise };
 // let messageCount = 0;
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+/////////////////---------------/////////////////---------------| MAIN 함수 |---------------/////////////////---------------/////////////////
+
 window.addEventListener('load', function () {
 
     const chattingScreen = document.getElementById('chattingScreen');
@@ -155,6 +239,11 @@ window.addEventListener('load', function () {
     // let stepCount = 0;
     // const maxSteps = 3;
 
+
+
+
+
+    //---------------------------| Tutorial Overlay |---------------------------//
     disableChatInputAndMoreButton();
     
     disableSendButton();
@@ -217,7 +306,10 @@ window.addEventListener('load', function () {
     }
 
 
-    //------------| Sending & Receiving Chat |------------//
+
+
+
+    //---------------------------| Send Button |---------------------------//
     
     sendButton.addEventListener('click', function (event) {  // EDITED
         // console.log('Send button clicked');
@@ -241,8 +333,11 @@ window.addEventListener('load', function () {
         }, 100);
     });
 
-    //------------| Image Upload |------------//
 
+
+
+
+    //---------------------------| Image Upload |---------------------------//
     // Prevent default touch behavior to ensure smooth transitions
     document.body.addEventListener('touchstart', function (e) {
         if (e.target === modalOverlay3) {
@@ -322,7 +417,11 @@ window.addEventListener('load', function () {
         chatContainer.scrollTop = chatContainer.scrollHeight;
     }
 
-    //------------| Select Topic |------------//
+
+
+
+
+    //----------------------| Carousel Buttons |----------------------//
 
     carouselButtons.forEach(button => {
         button.addEventListener('click', function() {

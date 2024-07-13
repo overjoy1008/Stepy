@@ -156,6 +156,7 @@ export async function sendMessage() {
             await signalPromise;
             
             // await Promise.all([signalPromise, sequentialSignalPromise]);  // Wait for both signals
+            ///////----------------위 코드는 복구 금지----------------////////
 
             const response = await fetch('/get-chatgpt-response/', {
                 method: 'POST',
@@ -167,7 +168,6 @@ export async function sendMessage() {
 
             const result = await response.json();
             const gpt_response = result.response;
-            console.log('Received ChatGPT response:', gpt_response);
 
             await sequentialSignalPromise;  // Wait for the second signal
             
@@ -175,9 +175,9 @@ export async function sendMessage() {
             addMessage(gpt_response, false);
 
             chat_history_append('assistant|'+ gpt_response +'|');
+            console.log("chat_history:\n", chat_history);
             enableChatInputAndMoreButton();
 
-            // }, 1000);
         } else {
             chat_history_append('user|'+ message +'|');
             console.log("chat_history: ", chat_history);
