@@ -1,5 +1,4 @@
 import { base64ImageData } from "/static/js/chatting_screen.js";
-// import { disableChatInputAndMoreButton } from "/static/js/chatting_screen.js";
 import { enableChatInputAndMoreButton } from "/static/js/chatting_screen.js";
 import { addSequentialMessages } from "/static/js/chatting_screen.js";
 
@@ -7,8 +6,6 @@ import { setWaitingForResponse } from "/static/js/send_message.js";
 
 
 let system_prompt = '';
-
-// export let test_string = ['1','2','3'];
 
 export let chat_history = '';
 
@@ -75,11 +72,6 @@ async function choose_prompt(problemType, choice_form, problemdescription) {
 
     const result = await response.json();
     const solver_llm_prompt = result.prompt;
-    // let solver_llm_prompt_mini = ""
-    // for (let i = 0; i < 800; i++) {
-    //     solver_llm_prompt_mini += solver_llm_prompt[i]
-    // }
-    // console.log('ChatGPT - 3. choose_prompt:\n', solver_llm_prompt_mini);
     console.log('ChatGPT - 3. choose_prompt:\n', solver_llm_prompt);
     solver_llm_response(base64ImageData, solver_llm_prompt);
 }
@@ -97,8 +89,6 @@ async function solver_llm_response(base64ImageData, solver_llm_prompt) {
             },
             body: formData
         });
-
-        
 
         const result = await response.json();
         const solver_llm_response = result.response;
@@ -153,20 +143,3 @@ async function solver_llm_response(base64ImageData, solver_llm_prompt) {
 }
 
 export { signalPromise };
-
-
-// function finding_problem_type(finding_response) {
-//     const formData = new URLSearchParams();
-//     formData.append('finding_response', finding_response);
-//     const response = fetch('/problem-type/', {
-//         method: 'POST',
-//         headers: {
-//             'Content-Type': 'application/x-www-form-urlencoded',
-//         },
-//         body: formData
-//     });
-//     const result = response.json();
-//     const problem_type = result.response;
-
-//     console.log('ChatGPT - 2. problem_type:\n', problem_type);
-// };

@@ -10,11 +10,11 @@ import { chat_history_append } from "/static/js/analyze_problem.js";
 
 
 const sendButtonImage = sendButton.querySelector('img');
-const popupMessage = document.getElementById('popupMessage'); // NEW
+const popupMessage = document.getElementById('popupMessage');
 
 let isWaitingForResponse = false;
-let isFirstChat = true; // NEW
-let isImageUploaded = false; // NEW
+let isFirstChat = true;
+let isImageUploaded = false;
 
 export function setImageUploaded(binary) {
     isImageUploaded = binary;
@@ -22,7 +22,7 @@ export function setImageUploaded(binary) {
 
 
 // 백엔드 상태값 전달 예시
-const backendStatuses = [  // NEW
+const backendStatuses = [
     { type: 'STEP_UPDATE', step: 1 },
     // { type: 'STEP_UPDATE', step: 2 },
     // { type: 'STEP_UPDATE', step: 3 },
@@ -59,7 +59,7 @@ export function updateSendButtonState() {
 }
 
 
-function showPopupMessage() {  // NEW
+function showPopupMessage() {
     // console.log('Showing popup message');
     popupMessage.style.display = 'block';
     setTimeout(() => {
@@ -67,7 +67,7 @@ function showPopupMessage() {  // NEW
     }, 1500);
 }
 
-export function handleSendAction() {  // NEW
+export function handleSendAction() {
     // console.log('Handle send action called');
     // console.log('isImageUploaded:', isImageUploaded);
     // console.log('isWaitingForResponse:', isWaitingForResponse);
@@ -84,7 +84,7 @@ export function handleSendAction() {  // NEW
     }
 }
 
-function addStepLabel(step) {  // NEW
+function addStepLabel(step) {
     const stepLabel = document.createElement('div');
     stepLabel.classList.add('step-label');
     stepLabel.textContent = `${step}/${maxSteps} 단계`;
@@ -92,7 +92,7 @@ function addStepLabel(step) {  // NEW
     chatContainer.scrollTop = chatContainer.scrollHeight;
 }
 
-function handleBackendStatus(status) {  // NEW
+function handleBackendStatus(status) {
     if (status.type === 'STEP_UPDATE') {
         addStepLabel(status.step);
     } else if (status.type === 'PROCESSING') {
@@ -100,7 +100,7 @@ function handleBackendStatus(status) {  // NEW
     }
 }
 
-function simulateBackendProcess() {  // NEW
+function simulateBackendProcess() {
     let statusIndex = 0;
     
     function sendNextStatus() {
@@ -123,6 +123,7 @@ function simulateBackendProcess() {  // NEW
 const messages = [
     "핵심 개념 찾는 중",
     "풀이 step 구성 중",
+    "맞춤형 설명 생성 중",
     "✅설명 준비 완료!"
 ];
 
@@ -138,38 +139,12 @@ export async function sendMessage() {
     setWaitingForResponse(true); // isWaitingForResponse = true;
     updateSendButtonState();
 
-    /////////////////////////////////
-
-    // if (isImageUploaded && isFirstChat) {
-    //     isFirstChat = false;
-        
-    //     disableChatInputAndMoreButton();
-
-    //     setTimeout(() => {
-    //         realBackendProcess();
-    //     }, 1000);
-    // } else {
-    //     setTimeout(() => {
-    //         const gpt_message = '두번째 이상부터의 채팅';
-    //         addMessage(gpt_message, false);
-    //         setWaitingForResponse(false); // isWaitingForResponse = false;
-    //         updateSendButtonState();
-    //     }, 1000);
-    // }
-    /////////////////////////////////
-
     try {
         const formData = new URLSearchParams();
 
         if (isImageUploaded && isFirstChat) {
             isFirstChat = false;
-
-            addSequentialMessages(messages, 10000);
-            
-            // setTimeout(() => {
-            // console.log("chat_history.length: ", chat_history.length);
-            // addMessage("문제를 빠르게 분석하고 있어! 잠시만 30초 정도만 기다려줘~!", false);
-            // return;
+            addSequentialMessages(messages, 7000);
             await signalPromise;
             chat_history_append('user|'+ message +'|');
             disableChatInputAndMoreButton();
@@ -194,7 +169,7 @@ export async function sendMessage() {
             console.log('Received ChatGPT response:', gpt_response);
             addMessage(gpt_response, false);
             chat_history_append('assistant|'+ gpt_response +'|');
-            enableChatInputAndMoreButton();S
+            enableChatInputAndMoreButton();
 
             // }, 1000);
         } else {

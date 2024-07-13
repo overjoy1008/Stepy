@@ -6,40 +6,11 @@ import shutil
 import os
 from get_response import finding_llm, choose_prompt, solver_llm, get_chatgpt_response
 
-# from pydantic import BaseModel  #####
-# from fastapi.middleware.cors import CORSMiddleware  #####
-# from typing import List  #####
-
 app = FastAPI()
-
-# app.add_middleware(
-#     CORSMiddleware,
-#     allow_origins=["*"],
-#     allow_credentials=True,
-#     allow_methods=["*"],
-#     allow_headers=["*"],
-# )  #####
 
 templates = Jinja2Templates(directory="templates")
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
-
-###############################################
-# class MessageModel(BaseModel):
-#     role: str
-#     content: str
-
-# class DataModel(BaseModel):
-#     data: List[MessageModel]
-
-# @app.post("/process-data")
-# async def process_data(data: DataModel):
-#     # 데이터를 처리하는 로직
-#     processed_data = data.data  # 예: [{'role': 'system', 'content': '~~~'}, ...]
-#     return processed_data
-
-################################################
-
 
 # Directory to save uploaded images
 UPLOAD_DIR = "static/uploads"

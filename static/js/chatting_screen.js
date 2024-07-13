@@ -1,7 +1,7 @@
 import { disableSendButton } from "/static/js/send_message.js";
 import { updateSendButtonState } from "/static/js/send_message.js";
 import { handleSendAction } from "/static/js/send_message.js";
-import {setImageUploaded} from "/static/js/send_message.js";
+import { setImageUploaded } from "/static/js/send_message.js";
 
 import { finding_llm_response } from "/static/js/analyze_problem.js";
 
@@ -10,16 +10,7 @@ export let base64ImageData = '';
 export const chatInput = document.getElementById('chat-input');
 const moreButton = document.querySelector('.more-button');
 
-// export function addMessage(message, isUser) {  // OLD
-//     const messageElement = document.createElement('div');
-//     messageElement.classList.add('message');
-//     messageElement.classList.add(isUser ? 'user-message' : 'ai-message');
-//     messageElement.textContent = message;
-//     chatContainer.appendChild(messageElement);
-//     chatContainer.scrollTop = chatContainer.scrollHeight;
-// }
-
-let lastMessageSender = null; // NEW
+let lastMessageSender = null;
 
 //------------| Chatting Status |------------//
     
@@ -44,8 +35,11 @@ function createMessageElement(isUser) {
         const aiMessageContainer = document.createElement('div');
         aiMessageContainer.classList.add('ai-message-container');
 
-        const profilePicture = document.createElement('div');
+        const profilePicture = document.createElement('img');
         profilePicture.classList.add('ai-profile-picture');
+        profilePicture.src = '../static/img/ai-profile-image.png';
+        profilePicture.alt = 'AI 프로필 사진';
+
         
         if (lastMessageSender === 'user' || lastMessageSender === null) {
             profilePicture.textContent = 'Stepy';
@@ -66,7 +60,7 @@ function createMessageElement(isUser) {
     return messageElement;
 }
 
-export function addMessage(message, isUser) {  // NEW
+export function addMessage(message, isUser) {
     const messageElement = createMessageElement(isUser);
 
     if (isUser) {
@@ -82,7 +76,7 @@ export function addMessage(message, isUser) {  // NEW
     lastMessageSender = isUser ? 'user' : 'ai';
 }
 
-export function addSequentialMessages(messages, interval = 3000) {  // NEW
+export function addSequentialMessages(messages, interval = 7000) {
     const messageElement = createMessageElement(false);
     chatContainer.appendChild(messageElement);
 
@@ -112,41 +106,9 @@ export function addSequentialMessages(messages, interval = 3000) {  // NEW
     lastMessageSender = 'ai';
 }
 
-let callCount = 0;
+// let callCount = 0;
 
-let messageCount = 0;
-
-// export function addSequentialMessages(message, interval = 3000) {  // NEW
-//     const messageElement = createMessageElement(false);
-//     chatContainer.appendChild(messageElement);
-
-//     const messageContent = messageElement.querySelector('.ai-message-content');
-
-//     setTimeout(() => {
-//         if (messageCount > 0) {
-//             // Gray out the previous message
-//             const previousMessage = messageContent.lastElementChild;
-//             if (previousMessage) {
-//                 previousMessage.classList.add('grayed-out');
-//             }
-//             // Add a div for increased spacing
-//             const spacer = document.createElement('div');
-//             spacer.classList.add('message-spacer');
-//             messageContent.appendChild(spacer);
-//         }
-//         const messageDiv = document.createElement('div');
-//         messageDiv.textContent = message;
-//         messageDiv.classList.add('sequential-message');
-//         messageContent.appendChild(messageDiv);
-//         chatContainer.scrollTop = chatContainer.scrollHeight;
-        
-//         // Update the message count
-//         messageCount += 1;
-//     }, messageCount * interval);
-
-//     lastMessageSender = 'ai';
-// }
-
+// let messageCount = 0;
 
 
 window.addEventListener('load', function () {
@@ -170,6 +132,7 @@ window.addEventListener('load', function () {
 
     const modalOverlayCarousel = document.getElementById('modalOverlayCarousel');
     const carouselButtons = document.querySelectorAll('.carousel-button');
+    const carouselButtons2 = document.querySelectorAll('.carousel-button2');
 
     let currentModal = 1;
     let isTransitioning = false;
@@ -177,8 +140,8 @@ window.addEventListener('load', function () {
     let isCarouselFromImageUpload = false;
     let isImageCapture = false;
     
-    // let stepCount = 0; // NEW
-    const maxSteps = 3; // NEW
+    // let stepCount = 0;
+    // const maxSteps = 3;
 
     disableChatInputAndMoreButton();
     
@@ -274,18 +237,6 @@ window.addEventListener('load', function () {
             e.preventDefault();
         }
     }, { passive: false });
-
-    ////////////////////////////////// DELETED ///////////////////////////////////////
-    // // Prevent clicks on modalOverlay2 and modalOverlay3 from triggering the transition again
-    // modalOverlay2.addEventListener('click', function (event) {
-    //     event.stopPropagation();
-    // });
-    // modalOverlay3.addEventListener('click', function (event) {
-    //     event.stopPropagation();
-    // });
-            
-    // // Initial button state
-    // updateSendButtonState();
     
     moreButton.addEventListener('click', function(event) {
         console.log('More button clicked');
@@ -313,24 +264,6 @@ window.addEventListener('load', function () {
         imageInput.click();
     });
 
-    //////////////// 원조 base64 코드 ////////////////
-    // imageInput.addEventListener('change', function(event) {
-    //     console.log('Image selected');
-    //     event.stopPropagation();
-    //     const file = event.target.files[0];
-    //     if (file) {
-    //         const reader = new FileReader();
-    //         reader.onload = function(e) {
-    //             imagePreview.src = e.target.result;
-    //             base64ImageData = e.target.result.split(',')[1]; // base64 데이터 저장
-    //             console.log('Image base64 data:', base64ImageData);
-    //             showImagePreview();
-    //         };
-    //         reader.readAsDataURL(file);
-    //     }
-    // });
-
-    //////////////// 어?? 이러면 안되는데... ////////////////
     imageInput.addEventListener('change', function(event) {
         event.stopPropagation();
         const file = event.target.files[0];
@@ -346,14 +279,13 @@ window.addEventListener('load', function () {
         }
         event.target.value = '';
     });
-    ////////////////////////////////////////////////////////
 
     function showImagePreview() {
         imagePreviewContainer.style.display = 'flex';
         imageUploadOverlay.style.display = 'none';
     }
 
-    confirmImageButton.addEventListener('click', function() {  // EDITED
+    confirmImageButton.addEventListener('click', function() {
         const imageUrl = imagePreview.src;
         addImageMessage(imageUrl, true);
         imagePreviewContainer.style.display = 'none';
@@ -369,21 +301,7 @@ window.addEventListener('load', function () {
         imageInput.click();
     });
 
-    // function addImageMessage(imageUrl, isUser) {  // OLD
-    //     const messageElement = document.createElement('div');
-    //     messageElement.classList.add('message');
-    //     messageElement.classList.add(isUser ? 'user-message' : 'ai-message');
-        
-    //     const imageElement = document.createElement('img');
-    //     imageElement.src = imageUrl;
-    //     imageElement.classList.add('uploaded-image');
-        
-    //     messageElement.appendChild(imageElement);
-    //     chatContainer.appendChild(messageElement);
-    //     chatContainer.scrollTop = chatContainer.scrollHeight;
-    // }
-
-    function addImageMessage(imageUrl, isUser) {  // NEW
+    function addImageMessage(imageUrl, isUser) {
         const imageElement = document.createElement('img');
         imageElement.src = imageUrl;
         imageElement.classList.add('uploaded-image');
@@ -411,6 +329,14 @@ window.addEventListener('load', function () {
                 transitionToNextModal(modalOverlay2, modalOverlay3);
                 currentModal = 3;
             }
+        });
+    });
+
+    carouselButtons2.forEach(function(button) {
+        button.addEventListener('click', function() {
+            var topic = this.getAttribute('data-topic');
+            var messageElement = document.querySelector('.modal-message-carousel');
+            messageElement.textContent = `${topic}은 준비중이야!`;
         });
     });
 });
