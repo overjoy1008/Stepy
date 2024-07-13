@@ -76,6 +76,11 @@ export function addMessage(message, isUser) {
     lastMessageSender = isUser ? 'user' : 'ai';
 }
 
+let resolveSequentialSignal;
+const sequentialSignalPromise = new Promise((resolve) => {
+    resolveSequentialSignal = resolve;
+});
+
 export function addSequentialMessages(messages, interval = 7000) {
     const messageElement = createMessageElement(false);
     chatContainer.appendChild(messageElement);
@@ -100,11 +105,18 @@ export function addSequentialMessages(messages, interval = 7000) {
             messageDiv.classList.add('sequential-message');
             messageContent.appendChild(messageDiv);
             chatContainer.scrollTop = chatContainer.scrollHeight;
+            
+            // Check if this is the last message
+            if (index === messages.length - 1) {
+                resolveSequentialSignal();  // Resolve the promise
+            }
         }, index * interval);
     });
 
     lastMessageSender = 'ai';
 }
+
+export { sequentialSignalPromise };
 
 // let callCount = 0;
 

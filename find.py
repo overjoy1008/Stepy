@@ -1,18 +1,10 @@
 # choice 형태 선택하는 함수
-choice_format_1 = '    {\r\n        "Choice_solution": {\r\n        "STEP1": "ㄱ_풀이과정"\r\n        "ㄱ_참/거짓": "True/False"  True, False을 판단한다.\r\n        "STEP2": "ㄱ_의 풀이과정을 참고하여 ㄴ 풀이과정을 서술한다."\r\n        "ㄴ_참/거짓": "True/False"  True, False을 판단한다.\r\n        "STEP3": "ㄱ,ㄴ_풀이과정을 참고하여 ㄷ 풀이과정을 서술한다."\r\n        "ㄷ_참/거짓": "True/False"  True, False을 판단한다.\r\n        }\r\n    }'
-choice_format_2 = '    {\r\n        "Choice_solution": {\r\n        "STEP1":"",\r\n        "STEP2":"",\r\n        "STEP3":""\r\n        }\r\n    }'
 prompt_list = {
-    "등가 원리": {
-        "field": "등가 원리",
-        "detailed field feature": "E=mc^2이라는 식에 대해서 다루며 핵융합, 핵분열 과정, 중성자수, 양성자수, 질량수와 같은 개념을 다룬다.",
-        "Background Knowledge": "",
-        "solving strategy": "",
-    },
     "여러 가지 운동": {
         "field": "여러 가지 운동",
         "detailed field feature": "한개 또는 두개의 물체가 속도가 변화하는 여러 상황이 주어진다. 속도, 가속도, 변위를 활용하여 대답한다. 빗면일 경우 두 물체의 가속도는 동일하다.",
-        "Background Knowledge": "",
-        "solving strategy": "",
+        "Background Knowledge": "등가속도 변수: [처음속도(V_i),나중속도(V_f),평균속도(V_m),구간시간(t),구간변위(s),가속도(a)]\r\n등가속도 공식: [\r\n    2{가속도}{거리}= {나중속도}^2-{처음속도}^2,\r\n    {나중속도} = {처음속도} + {가속도}{걸린시간},\r\n    {평균속도}={변위}/{걸린시간},\r\n    {평균속도}=({처음속도}+ {나중속도})/2,\r\n    {평균속도}=({처음시점}+{나중시점})/2에서의 속도,\r\n    {거리}=0.5{가속도}({구간_시간}^2)+{처음속도}{걸린시간}\r\n    ]",
+        "solving strategy": '<STEP1>각 물체별 주어진 운동조건분석\r\n-[Background knowledge]에 있는 등가속도 변수들 중 어떤 값들이 주어졌는지 분석한다.\r\n-상황별로 물체가 가지는 물리 변수를 분석한다.\r\n-이전 상황의 나중 속도와 다음 상황의 처음 속도는 동일하다.\r\n    -output format\r\n    """\r\n    {\r\n        "물체운동분석":{\r\n            "{A}":{\r\n                "{지점1}-{지점2}":{\r\n                    "{지점1}처음속도":"",\r\n                    "{지점2}나중속도":"",\r\n                    "{구간1}평균속도":"",\r\n                    "{구간1}걸린시간":"{지점1}-{지점2}에서 걸린 시간",\r\n                    "{구간1}변위":"{지점1}-{지점2}사이 거리",\r\n                    "{구간1}가속도":"a" #동일한 빗면에서는 동일한 가속도,                               \r\n                },\r\n                "{지점2}-{지점3}":{\r\n                    "{지점2}처음속도":"",\r\n                    "{지점3}나중속도":"",\r\n                    "{구간2}평균속도":"",\r\n                    "{구간2}걸린시간":"{지점2}-{지점3}에서 걸린 시간",\r\n                    "{구간2}변위":"{지점2}-{지점3}사이 거리",\r\n                    "{구간2}가속도":"a" #동일한 빗면에서는 동일한 가속도,                                 \r\n                },...            \r\n            },\r\n            "{B}":{\r\n            ...\r\n            }\r\n        }\r\n    }\r\n    """\r\n<STEP2>구간별 조건을 활용한 계산\r\n-[Background knowledge]에 있는 등가속도 공식을 활용하여, choices를 풀이할 수 있는 준비를 한다.\r\n    -output format\r\n    """\r\n    {\r\n        "조건분석":{\r\n        "{구간}-{물체명}-{조건1}-{구간}-{물체명}-{조건2}":"{조건1}과 {조건2}를 활용하면 {"등가속도 공식"}에 의해 {물체명}의 {식에서 구할 수 있는 새로운 값}이 나옵니다.",\r\n        "{구간}-{물체명}-{조건1}-{구간}-{물체명}-{조건2}":"{조건1}과 {조건2}를 활용하면 {"등가속도 공식"}에 의해 {물체명}의 {식에서 구할 수 있는 새로운 값}이 나옵니다."        \r\n        }\r\n        ...       \r\n    }\r\n    """    \r\n    -output example\r\n    """\r\n    {\r\n        "{구간1}{A}{평균속도}-{구간1}{A}{걸린시간}":"{평균속도}과 {걸린시간}를 활용하면 {"{평균속도}={변위}/{걸린시간}"}에 의해 {A}의 {변위}이 나옵니다.",\r\n        "{구간2}{B}{나중속도}-{구간2}{B}{처음속도}":"{나중속도}과 {처음속도}를 활용하면 {"{평균속도}=({처음속도}+ {나중속도})/2"}에 의해 {B}의 {평균속도}이/가 나옵니다.",\r\n        "{구간3}{B}{나중속도}-{구간3}{B}{처음속도}":"{나중속도}과 {처음속도}를 활용하면 {"{나중속도} = {처음속도} + {가속도}{걸린시간}"}에 의해 {B}의 {속도변화량}이 나옵니다.",\r\n        ...       \r\n    }\r\n    """\r\n<STEP3>선지 해석\r\n-<STEP1><STEP2>를 무조건 참고하여 choices들에 적용하여 상세하게 풀이과정까지 포함하여 풀이한다.',
     },
     "역학적 에너지 보존": {
         "field": "역학적 에너지 보존",
@@ -20,35 +12,17 @@ prompt_list = {
         "Background Knowledge": "",
         "solving strategy": "",
     },
-    "열역학 법칙": {
-        "field": "열역학 법칙",
-        "detailed field feature": "열역학 제 1법칙, 제2법칙, PV=nRT를 다룬다.",
-        "Background Knowledge": "",
-        "solving strategy": "",
-    },
-    "운동량 보존": {
-        "field": "운동량 보존",
-        "detailed field feature": "여러가지 상황에서 운동량에 대해서 다룬다.",
+    "운동량과 충격량": {
+        "field": "운동량과 충격량",
+        "detailed field feature": "운동량이 상황별로 보존되는지 확인하여 물체의 운동을 분석한다. 충격량의 경우 시간, 충격력을 활용하여 충격량을 분석한다.",
         "Background Knowledge": "",
         "solving strategy": "",
     },
     "작용 반작용 법칙": {
         "field": "작용 반작용 법칙",
         "detailed field feature": "움직이지 않는 물체 사이에서의 상호작용을 다룬다.",
-        "Background Knowledge": "",
-        "solving strategy": "",
-    },
-    "충격량": {
-        "field": "충격량",
-        "detailed field feature": "F-t 그래프가 주어지면서 충격력, 충격량, 운동량의 변화량 같은 정보를 다룬다.",
-        "Background Knowledge": "",
-        "solving strategy": "",
-    },
-    "특수 상대성 이론": {
-        "field": "특수 상대성 이론",
-        "detailed field feature": "특수 상대성 이론과 관련된, 한 점 동시성, 길이수축, 시간팽창과 같은 개념을 다룬다.",
-        "Background Knowledge": "",
-        "solving strategy": "",
+        "Background Knowledge": '힘의 종류:[\r\n    "외력":손이나 전동기에 의해 작용하는 힘이다., \r\n    "중력": 물체마다 작용하는 힘으로 각 물체의 질량과 중력가속도를 곱해서 구한다., \r\n    "장력": 실과 연결된 모든 물체에서 작용한다., \r\n    "탄성력": 용수철과 연결된 모든 물체에 작용한다., \r\n    "자기력": 자성을 띄는 물체 사이에서 작용한다., \r\n    "수직항력: 물체의 표면이 다른 물체를 들어올리는 힘으로 무게와는 무관하다. 물체가 표면이랑 접촉하고 있을 때만 존재한다." \r\n    ]\r\n참고사항: \r\n모든 끈은 장력을 가져야 하며, 이쪽에서의 장력은 항상 반대쪽의 장력과 동일해야 합니다.\r\n외부 힘은 화살표와 그 값(F, 2F 등)으로 그림에 표시되어 있습니다.\r\n물체가 바닥에 닿거나 다른 물체 위에 놓여 있을 때마다 수직항력이 존재해야 합니다. 물체가 수직으로 쌓여 있을 경우, 각 물체는 각각의 수직항력을 가져야 하며, 바닥에서부터 위쪽으로 찾아야 합니다.\r\n',
+        "solving strategy": '<STEP1>주어진 조건분석\r\n-모든 힘은 알파벳으로 이름을 지정하세요. 예를 들어, 중력은 mg, 2mg, m_(물체)g 외부 힘이나 알 수 없는 힘은 F_a, F_b, 장력은 T, 수직항력은 N_a, N_ab, N_b 등으로 명명합니다. 탄성력은 F_a, F_b 등으로 명명합니다.\r\n-모든 물체에 작용하고 있는 힘을 전부다 분석한다. \r\n-물체 사이에 실이 연결돼있으면 무조건 두 물체에 장력을 표현한다.\r\n-그림을 분석하여 장력은 무조건 실이 연결된 방향으로 작용한다.\r\n-물체 사이에 용수철이 연결돼있으면 무조건 두 물체에 탄성력을 표현한다. 탄성력의 경우 수축된경우 양쪽으로 미는 힘을 늘어난 경우 양쪽을 당기는 힘이 작용한다.\r\n-저울에 표시된 힘의 크기는 저울 바로 위 물체의 수직항력을 측정한다. 물체의 무게를 측정하는 것이 아니다.\r\n-output format(힘이 존재하는 것만 표현한다. 값이 숫자로 주어진 경우 숫자로 채워넣는다. 힘은 있지만 주어지지 않은 경우 미지수로 표현한다.)\r\n    """\r\n    {\r\n        "A":{\r\n            "외력":["F_a", 방향] \r\n            "중력":["m_a*g", 방향], \r\n            "장력":["T_ab", 방향], \r\n            "탄성력":["F_s", 방향], \r\n            "자기력":["F_m", 방향], \r\n            "수직항력":["N_a", 방향] \r\n        },\r\n        "B":{\r\n            "외력":["F_b", 방향], \r\n            "중력":["m_b*g", 방향], \r\n            "장력":["T_ab", 방향], \r\n            "탄성력":["F_s", 방향], \r\n            "자기력":["F_m", 방향], \r\n            "수직항력":["N_b", 방향] \r\n        },\r\n        "c":....\r\n    }\r\n\r\n<STEP2>조건을 활용한 각 물체의 합력 계산\r\n-각 물체에서 함력을 구한다. 합력은 모두 0이다.\r\n-output format\r\n    """\r\n    {\r\n        "A":"합력(0)=중력+장력",\r\n        "B":"합력(0)=중력+탄성력+장력",\r\n        ...\r\n    }\r\n    """\r\n<STEP3>\r\n-<STEP1><STEP2>를 무조건 참고하여 choices들에 적용하여 상세하게 풀이과정까지 포함하여 풀이한다.\r\n-작용/반작용: 힘이 어떤 물체(주체)가 어떤 물체(객체)에 작용하는지를 분석한다. \r\n-두 힘이 같은 물체(A,B,C,...)에 작용한다면 절대 작용/반작용이 아니다.\r\n-힘의 방향을 분석할 경우에는 힘의 방향을 <STEP2>의 값에서 확인하여 결론을 내린다.\r\n-저울에 표기되는 힘의 크기는 수직항력이지 물체의 무게가 아니다. 저울 위 물체의 수직항력을 <STEP2>에서 찾는다.\r\n-계산이 필요한 경우 <STEP2>의 식들을 연립하여 계산 후 값을 도출한다. 계산이 필요한 경우는 정확한 값을 찾아야 하는 경우와 대소비교를 해야하는 경우이다.\r\n',
     },
     "힘과 운동": {
         "field": "힘과 운동",
@@ -56,94 +30,7 @@ prompt_list = {
         "Background Knowledge": "",
         "solving strategy": "",
     },
-    "전기력": {
-        "field": "전기력",
-        "detailed field feature": "쿨롱의 법칙을 사용하여 물질 사이의 관계에 대해서 다룬다.",
-        "Background Knowledge": "",
-        "solving strategy": "",
-    },
-    "수소 원자 모형": {
-        "field": "수소 원자 모형",
-        "detailed field feature": "수소 원자 모형에서 각 주양자수에 따라서 에너지가 어떻게 변화하는지를 파악한다.",
-        "Background Knowledge": "",
-        "solving strategy": "",
-    },
-    "전기 전도성": {
-        "field": "전기 전도성",
-        "detailed field feature": "물질의 전기전도성에 대해서 다룬다. 도체, 반도체, 절연체가 주어진다.",
-        "Background Knowledge": "",
-        "solving strategy": "",
-    },
-    "반도체": {
-        "field": "반도체",
-        "detailed field feature": "P형 N형 반도체에 대해서 다루며 P-N접합 다이오드의 정류 작용을 활용한다.",
-        "Background Knowledge": "",
-        "solving strategy": "",
-    },
-    "자기장": {
-        "field": "자기장",
-        "detailed field feature": "도선이 만드는 자기장에 대한 문제가 주어진다.",
-        "Background Knowledge": "",
-        "solving strategy": "",
-    },
-    "자성체": {
-        "field": "자성체",
-        "detailed field feature": "강자성체, 반자성체, 상자성체 특징들을 활용하는 문제가 주어진다.",
-        "Background Knowledge": "",
-        "solving strategy": "",
-    },
-    "전자기 유도": {
-        "field": "전자기 유도",
-        "detailed field feature": "자기장 변화에 의해 생기는 전류와 관련된 문제가 주어진다.",
-        "Background Knowledge": "",
-        "solving strategy": "",
-    },
-    "파동의 진행과 굴절": {
-        "field": "파동의 진행과 굴절",
-        "detailed field feature": "파동이 매질이 달라지면서 굴절하는 현상에 대한 문제가 주어진다.",
-        "Background Knowledge": "",
-        "solving strategy": "",
-    },
-    "전반사": {
-        "field": "전반사",
-        "detailed field feature": "전반사가 되기 위한 임계각과 파동의 진행과 굴절을 결합시킨 문제가 주어진다.",
-        "Background Knowledge": "",
-        "solving strategy": "",
-    },
-    "전자기파": {
-        "field": "전자기파",
-        "detailed field feature": "다양한 전자기파가 주어지며 예시를 분석한다.",
-        "Background Knowledge": "",
-        "solving strategy": "",
-    },
-    "파동의 간섭": {
-        "field": "파동의 간섭",
-        "detailed field feature": "보강, 상쇄 간섭이 언제 일어나는지 분석한다.",
-        "Background Knowledge": "",
-        "solving strategy": "",
-    },
-    "빛의 이중성": {
-        "field": "빛의 이중성",
-        "detailed field feature": "빛의 이중성에 대한 내용으로 이중 슬릿 실험, 광전 효과에 대해서 다룬다.",
-        "Background Knowledge": "",
-        "solving strategy": "",
-    },
-    "물질의 이중성": {
-        "field": "물질의 이중성",
-        "detailed field feature": "물질의 이중성에 관련한 단원으로 드브로이의 물질파에 대해서 다룬다.",
-        "Background Knowledge": "",
-        "solving strategy": "",
-    },
 }
-
-
-def find_choice_format(format):
-    if format == "5":
-        return choice_format_2
-    elif format == "ㄱ,ㄴ,ㄷ":
-        return choice_format_1
-    else:
-        return "error: can't find choice_format"
 
 
 # prompt 선택하는 함수

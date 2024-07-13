@@ -129,6 +129,7 @@ const messages = [
 
 
 import { signalPromise } from "/static/js/analyze_problem.js";
+import { sequentialSignalPromise } from "/static/js/chatting_screen.js";
 
 export async function sendMessage() {
     if (isWaitingForResponse || chatInput.value.trim() === '') return;
@@ -145,15 +146,16 @@ export async function sendMessage() {
         if (isImageUploaded && isFirstChat) {
             isFirstChat = false;
             addSequentialMessages(messages, 7000);
-            await signalPromise;
             chat_history_append('user|'+ message +'|');
             disableChatInputAndMoreButton();
             console.log("chat_history: ", chat_history);
             console.log('Sending image data');
             formData.append('base64_image', base64ImageData);
-            
-
             formData.append('chat_history', chat_history);
+
+            await signalPromise;
+            
+            // await Promise.all([signalPromise, sequentialSignalPromise]);  // Wait for both signals
 
             const response = await fetch('/get-chatgpt-response/', {
                 method: 'POST',
@@ -165,9 +167,13 @@ export async function sendMessage() {
 
             const result = await response.json();
             const gpt_response = result.response;
-            
             console.log('Received ChatGPT response:', gpt_response);
+
+            await sequentialSignalPromise;  // Wait for the second signal
+            
+            
             addMessage(gpt_response, false);
+
             chat_history_append('assistant|'+ gpt_response +'|');
             enableChatInputAndMoreButton();
 

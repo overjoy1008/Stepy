@@ -4,11 +4,16 @@ from io import BytesIO
 import pinecone
 from pinecone import Pinecone
 
-# 환경 변수에서 API 키를 가져오기
-OPENAI_API_KEY = "sk-proj-HAFw52uWdPtfGO0vs9NCT3BlbkFJ5oV2aHmScKBXuaagZz2J"
-PINECONE_API_KEY = "24f0a98a-3a9d-4078-b894-e94e7e13caa0"
-# openai.api_key에 API 키를 설정합니다.
-openai.api_key = OPENAI_API_KEY
+# API KEY를 환경변수로 관리하기 위한 설정 파일
+import os
+from dotenv import load_dotenv
+
+# API KEY 정보로드
+load_dotenv()
+
+# Get API keys from environment variables
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+PINECONE_API_KEY = os.getenv("PINECONE_API_KEY")
 
 # 언어 모델 초기화
 # llm = OpenAI(temperature=0.7)
@@ -68,6 +73,5 @@ def find_RAG(problem_description):
     )
     contexts = ""
     for idx, match in enumerate(retrieved_chunks.matches):
-        contexts += match["metadata"]["problem"] + match["metadata"]["solution"]
-        RAG_value = match["metadata"]["solution"]
+        RAG_value = {"solution": match["metadata"]["solution"], "score": match["score"]}
     return RAG_value

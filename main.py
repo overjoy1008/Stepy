@@ -45,10 +45,11 @@ async def finding_llm_endpoint(request: Request, base64_image: str = Form(None))
 async def choose_prompt_endpoint(
     problem_type: str = Form(...),
     choice_form: str = Form(...),
-    porblem_description: str = Form(...),
+    choices: str = Form(...),
+    problem_description: str = Form(...),
 ):
-    prompt = choose_prompt(problem_type, choice_form, porblem_description)
-    return JSONResponse({"prompt": prompt})
+    prompt = choose_prompt(problem_type, choice_form, choices, problem_description)
+    return prompt
 
 
 @app.post("/solver-llm/")
