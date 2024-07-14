@@ -47,7 +47,7 @@ function createMessageElement(isUser) {
 
         const profilePicture = document.createElement('img');
         profilePicture.classList.add('ai-profile-picture');
-        profilePicture.src = '../static/img/ai-profile-image.png';
+        profilePicture.src = '../static/img/ai-profile.png';
         profilePicture.alt = 'AI 프로필 사진';
         
         if (lastMessageSender === 'user' || lastMessageSender === null) {
