@@ -49,7 +49,6 @@ function createMessageElement(isUser) {
         profilePicture.classList.add('ai-profile-picture');
         profilePicture.src = '../static/img/ai-profile-image.png';
         profilePicture.alt = 'AI 프로필 사진';
-
         
         if (lastMessageSender === 'user' || lastMessageSender === null) {
             profilePicture.textContent = 'Stepy';
@@ -235,9 +234,6 @@ window.addEventListener('load', function () {
     let selectedTopic = '';
     let isCarouselFromImageUpload = false;
     let isImageCapture = false;
-    
-    // let stepCount = 0;
-    // const maxSteps = 3;
 
 
 
