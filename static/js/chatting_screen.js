@@ -36,7 +36,7 @@ export function enableChatInputAndMoreButton() {
 
 //---------------------------| Simulation |---------------------------//
 
-function createMessageElement(isUser) {
+export function createMessageElement(isUser) {
     const messageElement = document.createElement('div');
     messageElement.classList.add('message');
     messageElement.classList.add(isUser ? 'user-message' : 'ai-message');
@@ -47,7 +47,7 @@ function createMessageElement(isUser) {
 
         const profilePicture = document.createElement('img');
         profilePicture.classList.add('ai-profile-picture');
-        profilePicture.src = '../static/img/ai-profile-image.png';
+        profilePicture.src = '../static/img/ai-profile.png';
         profilePicture.alt = 'AI 프로필 사진';
 
         
@@ -121,7 +121,6 @@ export function addMessage(message, isUser) {
     console.log('original message: ', message);
     const result = parseMarkdown(message);
     console.log('markdown message: ', result);
-    console.log('markdown message v2: ', parseMarkdown2(message));
 
     const messageElement = createMessageElement(isUser);
 
@@ -129,7 +128,8 @@ export function addMessage(message, isUser) {
         messageElement.textContent = message;
     } else {
         const messageContent = messageElement.querySelector('.ai-message-content');
-        // 여기부터 코드 수정
+
+        // 여기부터 Markdown + LaTeX 적용 코드 (Assistant 답변에만 적용)
         messageContent.innerHTML = result; // textContent 대신 innerHTML로 변경하여 HTML 태그를 해석하도록 함.
         MathJax.typesetPromise([messageContent]); // MathJax를 사용하여 수식을 렌더링합니다.
     }
@@ -235,9 +235,6 @@ window.addEventListener('load', function () {
     let selectedTopic = '';
     let isCarouselFromImageUpload = false;
     let isImageCapture = false;
-    
-    // let stepCount = 0;
-    // const maxSteps = 3;
 
 
 

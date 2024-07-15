@@ -26,33 +26,22 @@ async def finding_llm(base64_image: str) -> str:
 
 
 def choose_prompt(problem_type, format, choices, problem_description) -> str:
-    RAG_value_0 = find_RAG(problem_description + choices)
-
-    if RAG_value_0["score"] < 0.95:
-        RAG_value = ""
-    else:
-        RAG_value = RAG_value_0
+    RAG_value_0 = find_RAG(problem_description + f"{choices}")
     find_prompt_value = find_prompt(problem_type)
     field = find_prompt_value["field"]
     detailed_field_feature = find_prompt_value["detailed field feature"]
     Background_Knowledge = find_prompt_value["Background Knowledge"]
     solving_strategy = find_prompt_value["solving strategy"]
-    answer_json_format = (
-        '{\r\n    "STEP1":"",\r\n    "STEP2":"",\r\n    "STEP3":""\r\n}'
-    )
-
-    prompt = f"""
+    answer_json_format = find_prompt_value["answer_json_format"]
+    prompt1 = f"""
     [Role]
     -You are an expert in solving physics problems. From now on, problems related to {field} will be presented. Use the basic information related to {field} to solve them, but do not use the information from the choices provided.
     -{detailed_field_feature}
     -<보기>의 "ㄱ": "ㄴ": "ㄷ":은 절대 문제풀이에 참고하지 않는다. 설명을 <STEP1>,<STEP2>,<STEP3>에 근거로 활용할 경우 벌금 1000$를 매길거다.
-    - 문제 DB에서 가져온 값: 값이 주어진 경우 절대 훼손하지 않는다 훼손하면 벌금 200$를 매길거다.
-        {RAG_value}
     [Background Knowledge]
     {Background_Knowledge}
     [Problem Solving Strategy]
-    - 먼저 DB의 계산과정을 다시 검토하여 수정할 부분이 있는지 체크하고 수정한다.
-    -아래에 주어지는 STEP으로 문제를 풀이한다. 이 STEP을 무조건 만족시킨다.
+    -아래에 주어지는 STEP으로 문제를 풀이한다. 이 STEP을 무조건 만족시킨다. 문제를 풀면서 가정은 하지 않는다.
     {solving_strategy}
 
     [Choices Solving]
@@ -67,7 +56,25 @@ def choose_prompt(problem_type, format, choices, problem_description) -> str:
     -Only one json by merging all output format
     {answer_json_format}
     """
-    return prompt
+    prompt2 = f"""
+    [Role]
+    너는 주어진 문제 solution을 값을 그대로 가져와서 3STEP에 맞춰서 가공하는 역할을 할 거야.
+    - 문제 DB에서 가져온 값
+        {RAG_value_0}
+    [STEP1]
+    문제에서 사용하는 변수들에 대한 설명
+    [STEP2]
+    문제에서 어떤 식을 사용하였는지 설명
+    [STEP3]
+    문제에서 식끼리의 연립을 수행
+
+    [output format](json)
+    {answer_json_format}
+    """
+    if RAG_value_0["score"] < 0.95:
+        return prompt1
+    else:
+        return prompt2
 
 
 async def solver_llm(base64_image: str, solver_llm_prompt) -> str:

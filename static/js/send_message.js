@@ -4,6 +4,7 @@ import { chatInput } from "/static/js/chatting_screen.js";
 import { addSequentialMessages } from "/static/js/chatting_screen.js";
 import { disableChatInputAndMoreButton } from "/static/js/chatting_screen.js";
 import { enableChatInputAndMoreButton } from "/static/js/chatting_screen.js";
+import { createMessageElement } from "/static/js/chatting_screen.js";
 
 import { chat_history } from "/static/js/analyze_problem.js";
 import { chat_history_append } from "/static/js/analyze_problem.js";
@@ -19,18 +20,6 @@ let isImageUploaded = false;
 export function setImageUploaded(binary) {
     isImageUploaded = binary;
 }
-
-
-// 백엔드 상태값 전달 예시
-const backendStatuses = [
-    { type: 'STEP_UPDATE', step: 1 },
-    // { type: 'STEP_UPDATE', step: 2 },
-    // { type: 'STEP_UPDATE', step: 3 },
-    // { type: 'PROCESSING', message: "핵심 개념 찾는 중" },
-    // { type: 'PROCESSING', message: "풀이 step 구성 중" },
-    // { type: 'PROCESSING', message: "✅설명 준비 완료!" },
-];
-
 
 export function setWaitingForResponse(binary) {
     isWaitingForResponse = binary;
@@ -84,40 +73,26 @@ export function handleSendAction() {
     }
 }
 
-function addStepLabel(step) {
-    const stepLabel = document.createElement('div');
-    stepLabel.classList.add('step-label');
-    stepLabel.textContent = `${step}/${maxSteps} 단계`;
-    chatContainer.appendChild(stepLabel);
-    chatContainer.scrollTop = chatContainer.scrollHeight;
-}
+/////////// STEP 버튼 구현 ///////////
+let statusIndex = 0;
 
-function handleBackendStatus(status) {
-    if (status.type === 'STEP_UPDATE') {
-        addStepLabel(status.step);
-    } else if (status.type === 'PROCESSING') {
-        addMessage(status.message, false);
-    }
-}
+export function showStepComponent(step) {
+    if (statusIndex < stepStatuses.length) {
+        // const status = stepStatuses[statusIndex];
+        const stepIndex = showStep(step);
 
-function simulateBackendProcess() {
-    let statusIndex = 0;
-    
-    function sendNextStatus() {
-        if (statusIndex < backendStatuses.length) {
-            const status = backendStatuses[statusIndex];
-            handleBackendStatus(status);
-            statusIndex++;
-            setTimeout(sendNextStatus, 2000); // Simulate delay between statuses
-        } else {
-            const gpt_message = '이민찬이 만든 개멋진 프론트를 보십시오';
-            addMessage(gpt_message, false);
-            setWaitingForResponse(false); // isWaitingForResponse= false;
-            updateSendButtonState();
+        if (stepIndex !== undefined) {
+            lastMessageSender === 'user'
+            const stepElement = createMessageElement(false);
+            stepElement.classList.remove('ai-message-container');
+            stepElement.classList.add('step-label');
+            stepElement.textContent = `${stepIndex}/3 단계`;
+            chatContainer.appendChild(stepElement);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
         }
+        // statusIndex++;
+        lastMessageSender = isUser ? 'user' : 'ai';
     }
-
-    sendNextStatus();
 }
 
 const messages = [
@@ -170,7 +145,18 @@ export async function sendMessage() {
             const gpt_response = result.response;
 
             await sequentialSignalPromise;  // Wait for the second signal
-            
+
+            /////////////////////////// STEP 버튼 구현을 위한 코드 추가 /////////////////////////
+            //// 아래는 step 컴퍼넌트 띄워야 할 때 백단에서 호출해야 하는 step response 값
+
+            // {
+            //     "response": "AI's response message",
+            //     "show_step": 1  // or whatever step number is appropriate
+            // }
+
+            if (result.show_step) {
+                showStep(result.show_step);
+            }
             
             addMessage(gpt_response, false);
 
