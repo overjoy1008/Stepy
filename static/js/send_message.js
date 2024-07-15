@@ -73,6 +73,7 @@ export function handleSendAction() {
     }
 }
 
+
 /////////// STEP 버튼 구현 ///////////
 let statusIndex = 0;
 
@@ -145,7 +146,7 @@ export async function sendMessage() {
             const gpt_response = result.response;
 
             await sequentialSignalPromise;  // Wait for the second signal
-
+            
             /////////////////////////// STEP 버튼 구현을 위한 코드 추가 /////////////////////////
             //// 아래는 step 컴퍼넌트 띄워야 할 때 백단에서 호출해야 하는 step response 값
 

@@ -49,7 +49,6 @@ export function createMessageElement(isUser) {
         profilePicture.classList.add('ai-profile-picture');
         profilePicture.src = '../static/img/ai-profile.png';
         profilePicture.alt = 'AI 프로필 사진';
-
         
         if (lastMessageSender === 'user' || lastMessageSender === null) {
             profilePicture.textContent = 'Stepy';
