@@ -2,19 +2,24 @@ import { disableSendButton } from "/static/js/send_message.js";
 import { updateSendButtonState } from "/static/js/send_message.js";
 import { handleSendAction } from "/static/js/send_message.js";
 import { setImageUploaded } from "/static/js/send_message.js";
+import { setFirstChat } from "/static/js/send_message.js";
+import { showStep } from "/static/js/send_message.js";
 
 import { finding_llm_response } from "/static/js/analyze_problem.js";
+import { set_chat_history } from "/static/js/analyze_problem.js";
 
 
-export let base64ImageData = '';
+
 export const chatInput = document.getElementById('chat-input');
-
+export let lastMessageSender = null;
+export let base64ImageData = '';
 
 const moreButton = document.querySelector('.more-button');
 
-let lastMessageSender = null;
 
-
+export function setlastMessageSender(sender) {
+    lastMessageSender = sender;
+}
 
 
 
@@ -49,6 +54,7 @@ export function createMessageElement(isUser) {
         profilePicture.classList.add('ai-profile-picture');
         profilePicture.src = '../static/img/ai-profile.png';
         profilePicture.alt = 'AI 프로필 사진';
+
         
         if (lastMessageSender === 'user' || lastMessageSender === null) {
             profilePicture.textContent = 'Stepy';
@@ -111,9 +117,7 @@ function parseMarkdown(markdown) {
     return markdown.trim();
 }
 
-
-
-
+let currentStep = 1;
 
 //---------------------------| Add Message |---------------------------//
 export function addMessage(message, isUser) {
@@ -126,6 +130,24 @@ export function addMessage(message, isUser) {
     if (isUser) {
         messageElement.textContent = message;
     } else {
+        if (result.replace(/\s+/g, '').toLowerCase().includes('step1')) {
+            console.log('STEP1 detected');
+            currentStep = 1;
+            showStep(1)
+        } else if (result.replace(/\s+/g, '').toLowerCase().includes('step2')) {
+            console.log('STEP2 detected');
+            currentStep = 2;
+            showStep(2);
+        } else if (result.replace(/\s+/g, '').toLowerCase().includes('step3')) {
+            console.log('STEP3 detected');
+            currentStep = 3;
+            showStep(3);
+        } else {
+            console.log('Just continuing current STEP');
+            // showStep(currentStep)
+        }
+
+
         const messageContent = messageElement.querySelector('.ai-message-content');
 
         // 여기부터 Markdown + LaTeX 적용 코드 (Assistant 답변에만 적용)
@@ -185,10 +207,6 @@ export function addSequentialMessages(messages, interval = 7000) {
 }
 
 export { sequentialSignalPromise };
-
-// let callCount = 0;
-
-// let messageCount = 0;
 
 
 
@@ -375,7 +393,10 @@ window.addEventListener('load', function () {
             reader.onload = function(e) {
                 imagePreview.src = e.target.result;
                 base64ImageData = e.target.result.split(',')[1]; // base64 데이터 저장
-                console.log('Image base64 data:', base64ImageData);
+                set_chat_history([]);
+                currentStep = 1;
+                setFirstChat(true);
+                console.log('Image base64 data uploaded');
                 showImagePreview();
             };
             reader.readAsDataURL(file);

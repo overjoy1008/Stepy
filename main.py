@@ -5,6 +5,13 @@ from fastapi.staticfiles import StaticFiles
 import shutil
 import os
 from get_response import finding_llm, choose_prompt, solver_llm, get_chatgpt_response
+import mimetypes
+from starlette.responses import FileResponse
+from starlette.staticfiles import StaticFiles
+
+custom_mimetype = mimetypes.add_type(
+    "application/javascript", ".js", True
+)  # MIME으로 인해 JS 안 읽히던 오류 수정
 
 app = FastAPI()
 
@@ -12,9 +19,23 @@ templates = Jinja2Templates(directory="templates")
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
+
+# favicon.ico를 라우팅합니다.
+@app.get("/favicon.ico", include_in_schema=False)
+async def favicon():
+    return FileResponse("static/favicon.ico")
+
+
 # Directory to save uploaded images
 UPLOAD_DIR = "static/uploads"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
+
+
+@app.get("/main", response_class=HTMLResponse)  # MIME으로 인해 JS 안 읽히던 오류 수정
+async def static_endpoint(request: Request):
+    return templates.TemplateResponse(
+        "static/index.html", {"request": request}, mimetypes=custom_mimetype
+    )
 
 
 @app.get("/", response_class=HTMLResponse)

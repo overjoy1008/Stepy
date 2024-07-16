@@ -5,25 +5,32 @@ import { addSequentialMessages } from "/static/js/chatting_screen.js";
 import { disableChatInputAndMoreButton } from "/static/js/chatting_screen.js";
 import { enableChatInputAndMoreButton } from "/static/js/chatting_screen.js";
 import { createMessageElement } from "/static/js/chatting_screen.js";
+import { setlastMessageSender } from "/static/js/chatting_screen.js";
 
 import { chat_history } from "/static/js/analyze_problem.js";
-import { chat_history_append } from "/static/js/analyze_problem.js";
+import { append_chat_history } from "/static/js/analyze_problem.js";
 
 
 const sendButtonImage = sendButton.querySelector('img');
 const popupMessage = document.getElementById('popupMessage');
 
+let isImageUploaded = false;
 let isWaitingForResponse = false;
 let isFirstChat = true;
-let isImageUploaded = false;
 
 export function setImageUploaded(binary) {
     isImageUploaded = binary;
 }
 
+export function setFirstChat(binary) {
+    isFirstChat = binary;
+}
+
 export function setWaitingForResponse(binary) {
     isWaitingForResponse = binary;
 }
+
+
 
 export function disableSendButton() {
     sendButton.disabled = true;
@@ -73,27 +80,18 @@ export function handleSendAction() {
     }
 }
 
-
 /////////// STEP 버튼 구현 ///////////
-let statusIndex = 0;
+export function showStep(stepIndex) {
 
-export function showStepComponent(step) {
-    if (statusIndex < stepStatuses.length) {
-        // const status = stepStatuses[statusIndex];
-        const stepIndex = showStep(step);
-
-        if (stepIndex !== undefined) {
-            lastMessageSender === 'user'
-            const stepElement = createMessageElement(false);
-            stepElement.classList.remove('ai-message-container');
-            stepElement.classList.add('step-label');
-            stepElement.textContent = `${stepIndex}/3 단계`;
-            chatContainer.appendChild(stepElement);
-            chatContainer.scrollTop = chatContainer.scrollHeight;
-        }
-        // statusIndex++;
-        lastMessageSender = isUser ? 'user' : 'ai';
-    }
+    // const status = stepStatuses[statusIndex];
+    setlastMessageSender('user')
+    const stepElement = createMessageElement(false);
+    stepElement.classList.remove('ai-message-container');
+    stepElement.classList.add('step-label');
+    stepElement.textContent = `${stepIndex}/3 단계`;
+    chatContainer.appendChild(stepElement);
+    chatContainer.scrollTop = chatContainer.scrollHeight;
+    // lastMessageSender = isUser ? 'user' : 'ai';
 }
 
 const messages = [
@@ -122,10 +120,9 @@ export async function sendMessage() {
         if (isImageUploaded && isFirstChat) {
             isFirstChat = false;
             addSequentialMessages(messages, 7000);
-            chat_history_append('user|'+ message +'|');
+            append_chat_history('user|'+ message +'|');
             disableChatInputAndMoreButton();
             console.log("chat_history: ", chat_history);
-            console.log('Sending image data');
             formData.append('base64_image', base64ImageData);
             formData.append('chat_history', chat_history);
 
@@ -146,32 +143,17 @@ export async function sendMessage() {
             const gpt_response = result.response;
 
             await sequentialSignalPromise;  // Wait for the second signal
-            
-            /////////////////////////// STEP 버튼 구현을 위한 코드 추가 /////////////////////////
-            //// 아래는 step 컴퍼넌트 띄워야 할 때 백단에서 호출해야 하는 step response 값
 
-            // {
-            //     "response": "AI's response message",
-            //     "show_step": 1  // or whatever step number is appropriate
-            // }
-
-            if (result.show_step) {
-                showStep(result.show_step);
-            }
-            
             addMessage(gpt_response, false);
 
-            chat_history_append('assistant|'+ gpt_response +'|');
+            append_chat_history('assistant|'+ gpt_response +'|');
             console.log("chat_history:\n", chat_history);
             enableChatInputAndMoreButton();
 
         } else {
-            chat_history_append('user|'+ message +'|');
+            append_chat_history('user|'+ message +'|');
             console.log("chat_history: ", chat_history);
-            console.log('Sending image data');
             formData.append('base64_image', base64ImageData);
-            
-
             formData.append('chat_history', chat_history);
 
             const response = await fetch('/get-chatgpt-response/', {
@@ -186,8 +168,10 @@ export async function sendMessage() {
             const gpt_response = result.response;
             
             console.log('Received ChatGPT response:', gpt_response);
+
             addMessage(gpt_response, false);
-            chat_history_append('assistant|'+ gpt_response +'|');
+            append_chat_history('assistant|'+ gpt_response +'|');
+            console.log("chat_history: ", chat_history);
         }
     } catch (error) {
         console.error('Error fetching ChatGPT response:', error);

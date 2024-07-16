@@ -9,8 +9,12 @@ let system_prompt = '';
 
 export let chat_history = '';
 
-export function chat_history_append(message_str) {
-    chat_history+= message_str;
+export function append_chat_history(message_str) {
+    chat_history += message_str;
+}
+
+export function set_chat_history(first_message) {
+    chat_history = first_message;
 }
 
 let resolveSignal;
