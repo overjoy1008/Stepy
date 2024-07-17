@@ -15,20 +15,27 @@ body, html {
     max-height: 100vh;
     background: #0A1A31;
     margin: 0 auto;
-    overflow: auto;
+    overflow-y: auto;
     display: flex;
-    flex-direction: column;
     align-items: center;
     box-shadow: #eeeeee 0px 0px 8px 8px;
-    padding: 5vh 0;
-    box-sizing: border-box;
+}
+
+.content-wrapper {
+    position: relative;
+    width: 100%;
+    min-height: 100%;
+    padding-bottom: 20px;
 }
 
 .logo-container {
     display: flex;
     justify-content: center;
     align-items: center;
-    margin-top: 5vh;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    top: 63px;
 }
 
 .logo-icon {
@@ -52,9 +59,11 @@ body, html {
 }
 
 .subtitle {
-    max-width: 293px;
-    width: 90%;
-    margin-top: 5vh;
+    position: absolute;
+    width: 293px;
+    left: 50%;
+    transform: translateX(-50%);
+    top: 190px;
     font-weight: 500;
     font-size: 24px;
     line-height: 29px;
@@ -63,21 +72,27 @@ body, html {
 }
 
 .main-logo-container {
+    position: absolute;
     width: 324px;
-    max-width: 90%;
-    margin-top: 5vh;
+    height: 232px;
+    left: 50%;
+    transform: translateX(-50%);
+    top: 367px;
 }
 
 .main-logo-icon {
-    width: 100%;
-    height: auto;
+    position: absolute;
+    width: 323px;
+    height: 115px;
 }
 
 .start-button {
+    position: absolute;
     width: 280px;
-    max-width: 90%;
     height: 80px;
-    margin-top: 5vh;
+    left: 50%;
+    transform: translateX(-50%);
+    top: 719px;
     background: #FFFFFF;
     border-radius: 20px;
     display: flex;
@@ -90,9 +105,11 @@ body, html {
 }
 
 .beta-notice {
+    position: absolute;
     width: 270px;
-    max-width: 90%;
-    margin-top: 2vh;
+    left: 50%;
+    transform: translateX(-50%);
+    top: 682px;
     font-weight: 500;
     font-size: 14px;
     line-height: 17px;
@@ -100,8 +117,22 @@ body, html {
     color: #FFFFFF;
 }
 
-@media (min-height: 800px) {
-    .index-screen {
-        justify-content: space-between;
+@media screen and (min-height: 850px) {
+    .content-wrapper {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        height: 100%;
+    }
+
+    .logo-container, .subtitle, .main-logo-container, .beta-notice, .start-button {
+        position: static;
+        transform: none;
+        margin: 20px 0;
+    }
+
+    .main-logo-container {
+        height: auto;
     }
 }
