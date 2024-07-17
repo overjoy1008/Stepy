@@ -120,7 +120,7 @@ export async function sendMessage() {
         if (isImageUploaded && isFirstChat) {
             isFirstChat = false;
             addSequentialMessages(messages, 7000);
-            append_chat_history('user|'+ message +'|');
+            append_chat_history('user|'+ message + "\n문제를 끝까지 풀지 말고, 천천히 step 1을 알려줘. 나에게 역으로 질문을 해줘." +'|');
             disableChatInputAndMoreButton();
             console.log("chat_history: ", chat_history);
             formData.append('base64_image', base64ImageData);

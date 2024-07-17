@@ -26,9 +26,9 @@ async def favicon():
     return FileResponse("static/favicon.ico")
 
 
-# Directory to save uploaded images
-UPLOAD_DIR = "static/uploads"
-os.makedirs(UPLOAD_DIR, exist_ok=True)
+# # Directory to save uploaded images
+# UPLOAD_DIR = "static/uploads"
+# os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 
 @app.get("/main", response_class=HTMLResponse)  # MIME으로 인해 JS 안 읽히던 오류 수정
@@ -48,12 +48,12 @@ async def read_chattingscreen(request: Request):
     return templates.TemplateResponse("chattingscreen.html", {"request": request})
 
 
-@app.post("/upload-image/")
-async def upload_image(file: UploadFile = File(...)):
-    file_location = os.path.join(UPLOAD_DIR, file.filename)
-    with open(file_location, "wb+") as file_object:
-        shutil.copyfileobj(file.file, file_object)
-    return {"info": f"file '{file.filename}' saved at '{file_location}'"}
+# @app.post("/upload-image/")
+# async def upload_image(file: UploadFile = File(...)):
+#     file_location = os.path.join(UPLOAD_DIR, file.filename)
+#     with open(file_location, "wb+") as file_object:
+#         shutil.copyfileobj(file.file, file_object)
+#     return {"info": f"file '{file.filename}' saved at '{file_location}'"}
 
 
 @app.post("/finding-llm/")

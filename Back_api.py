@@ -54,8 +54,14 @@ def gpt_with_context(chat_history_list):
         max_tokens=4000,
         temperature=0,
         top_p=0,
+        # stream=True,
     )
     return response.choices[0].message.content
+    # for chunk in stream:
+    #     if chunk.choices[0].delta.content is not None:
+    #         stream_chunk(chunk.choices[0].delta.content)
+    #     if chunk.choices[0].delta.get("finish_reason") is not None:
+    #         add_message("...chat finished")
 
 
 def find_RAG(problem_description):

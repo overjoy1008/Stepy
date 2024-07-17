@@ -448,6 +448,7 @@ window.addEventListener('load', function () {
                 console.log('Selected topic:', selectedTopic);
                 addMessage(`${selectedTopic}`, true);
                 isCarouselFromImageUpload = false; // Reset the flag
+                addMessage(`${selectedTopic} 문제를 골랐구나! 질문이 뭐니?`, false);
 
                 const formData = new URLSearchParams();
                 formData.append('topic', selectedTopic);
