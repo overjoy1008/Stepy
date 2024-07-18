@@ -385,19 +385,68 @@ window.addEventListener('load', function () {
         imageInput.click();
     });
 
+    // imageInput.addEventListener('change', function(event) {
+    //     event.stopPropagation();
+    //     const file = event.target.files[0];
+    //     if (file) {
+    //         const reader = new FileReader();
+    //         reader.onload = function(e) {
+    //             imagePreview.src = e.target.result;
+    //             base64ImageData = e.target.result.split(',')[1]; // base64 데이터 저장
+    //             set_chat_history([]);
+    //             currentStep = 1;
+    //             setFirstChat(true);
+    //             console.log('Image base64 data uploaded');
+    //             showImagePreview();
+    //         };
+    //         reader.readAsDataURL(file);
+    //     }
+    //     event.target.value = '';
+    // });
+
     imageInput.addEventListener('change', function(event) {
         event.stopPropagation();
         const file = event.target.files[0];
         if (file) {
+            // 원본 이미지 파일 크기 출력 (바이트 단위)
+            console.log(`Original image size: ${file.size} bytes`);
+
             const reader = new FileReader();
             reader.onload = function(e) {
-                imagePreview.src = e.target.result;
-                base64ImageData = e.target.result.split(',')[1]; // base64 데이터 저장
-                set_chat_history([]);
-                currentStep = 1;
-                setFirstChat(true);
-                console.log('Image base64 data uploaded');
-                showImagePreview();
+                const img = new Image();
+                img.onload = function() {
+                    // Canvas를 사용하여 이미지 최적화
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+
+                    // 원하는 크기로 리사이즈 (예: 최대 너비 800px)
+                    const maxWidth = 800;
+                    const scaleSize = maxWidth / img.width;
+                    canvas.width = maxWidth;
+                    canvas.height = img.height * scaleSize;
+
+                    // Canvas에 이미지를 그리기
+                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+                    // 최적화된 이미지 데이터를 얻기 (JPEG 포맷, 품질 0.85)
+                    const optimizedImageData = canvas.toDataURL('image/jpeg', 0.85);
+
+                    // 최적화된 이미지 파일 크기 계산
+                    const optimizedImageSize = Math.round((optimizedImageData.length * (3/4)) - 2); // base64 크기 계산
+
+                    // 이미지 미리보기 및 base64 데이터 저장
+                    imagePreview.src = optimizedImageData;
+                    base64ImageData = optimizedImageData.split(',')[1]; // base64 데이터 저장
+                    set_chat_history([]);
+                    currentStep = 1;
+                    setFirstChat(true);
+                    console.log('Image base64 data uploaded and optimized');
+                    showImagePreview();
+
+                    // 최적화된 이미지 파일 크기 출력 (바이트 단위)
+                    console.log(`Optimized image size: ${optimizedImageSize} bytes`);
+                };
+                img.src = e.target.result;
             };
             reader.readAsDataURL(file);
         }
