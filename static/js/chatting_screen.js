@@ -385,25 +385,6 @@ window.addEventListener('load', function () {
         imageInput.click();
     });
 
-    // imageInput.addEventListener('change', function(event) {
-    //     event.stopPropagation();
-    //     const file = event.target.files[0];
-    //     if (file) {
-    //         const reader = new FileReader();
-    //         reader.onload = function(e) {
-    //             imagePreview.src = e.target.result;
-    //             base64ImageData = e.target.result.split(',')[1]; // base64 데이터 저장
-    //             set_chat_history([]);
-    //             currentStep = 1;
-    //             setFirstChat(true);
-    //             console.log('Image base64 data uploaded');
-    //             showImagePreview();
-    //         };
-    //         reader.readAsDataURL(file);
-    //     }
-    //     event.target.value = '';
-    // });
-
     imageInput.addEventListener('change', function(event) {
         event.stopPropagation();
         const file = event.target.files[0];
