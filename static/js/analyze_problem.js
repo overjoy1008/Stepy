@@ -67,25 +67,6 @@ function finding_problem_type(findingResponse) {
     choose_prompt(problem_type, choice_form, choices, problem_description);
 }
 
-async function choose_prompt(problem_type, choice_form, choices, problem_description) {
-    const formData = new URLSearchParams();
-    formData.append('problem_type', problem_type);
-    formData.append('choice_form', choice_form);
-    formData.append('choices', choices);
-    formData.append('problem_description', problem_description);
-    const response = await fetch('/choose-prompt/', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: formData
-    });
-
-    const solver_llm_prompt = await response.text();
-    console.log('ChatGPT - 3. choose_prompt:\n', solver_llm_prompt);
-    solver_llm_response(base64ImageData, solver_llm_prompt);
-}
-
 async function solver_llm_response(base64ImageData, solver_llm_prompt) {
     try {
         const formData = new URLSearchParams();

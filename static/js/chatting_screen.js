@@ -124,42 +124,60 @@ export function addMessage(message, isUser) {
     console.log('original message: ', message);
     const result = parseMarkdown(message);
     console.log('markdown message: ', result);
-
     const messageElement = createMessageElement(isUser);
-
     if (isUser) {
         messageElement.textContent = message;
     } else {
-        if (result.replace(/\s+/g, '').toLowerCase().includes('step1')) {
-            console.log('STEP1 detected');
+        if(currentStep == 0){
             currentStep = 1;
-            showStep(1)
-        } else if (result.replace(/\s+/g, '').toLowerCase().includes('step2')) {
-            console.log('STEP2 detected');
-            currentStep = 2;
-            showStep(2);
-        } else if (result.replace(/\s+/g, '').toLowerCase().includes('step3')) {
-            console.log('STEP3 detected');
-            currentStep = 3;
-            showStep(3);
-        } else {
-            console.log('Just continuing current STEP');
-            // showStep(currentStep)
+            const messageContent = messageElement.querySelector('.ai-message-content')
+            messageContent.innerHTML = result // textContent 대신 innerHTML로 변경하여 HTML 태그를 해석하도록 함.
+            MathJax.typesetPromise([messageContent]) // MathJax를 사용하여 수식을 렌더링합니다.
         }
+        else if (currentStep == 1) {
+            if (result.replace(/\s+/g, '').toLowerCase().includes('step2')){
+                currentStep = 2;
+                showStep(2)
+            }
+            else {
+                showStep(1)
+            }
+            const messageContent = messageElement.querySelector('.ai-message-content')
+            messageContent.innerHTML = result // textContent 대신 innerHTML로 변경하여 HTML 태그를 해석하도록 함.
+            MathJax.typesetPromise([messageContent]) // MathJax를 사용하여 수식을 렌더링합니다.
 
+        }else if (currentStep == 2) {
+            if (result.replace(/\s+/g, '').toLowerCase().includes('step3')){
+                currentStep = 3;
+                showStep(3)
+            }
+            else{
+                showStep(2)
+            }
+            const messageContent = messageElement.querySelector('.ai-message-content')
+            messageContent.innerHTML = result // textContent 대신 innerHTML로 변경하여 HTML 태그를 해석하도록 함.
+            MathJax.typesetPromise([messageContent]) // MathJax를 사용하여 수식을 렌더링합니다.
 
-        const messageContent = messageElement.querySelector('.ai-message-content');
-
+        } else {
+            if (result.replace(/\s+/g, '').toLowerCase().includes('step3')){
+                currentStep = 3;
+                showStep(3)
+            }
+            else{
+                showStep(3)
+            }
+            const messageContent = messageElement.querySelector('.ai-message-content')
+            messageContent.innerHTML = result // textContent 대신 innerHTML로 변경하여 HTML 태그를 해석하도록 함.
+            MathJax.typesetPromise([messageContent]) // MathJax를 사용하여 수식을 렌더링합니다.
+        }
         // 여기부터 Markdown + LaTeX 적용 코드 (Assistant 답변에만 적용)
-        messageContent.innerHTML = result; // textContent 대신 innerHTML로 변경하여 HTML 태그를 해석하도록 함.
-        MathJax.typesetPromise([messageContent]); // MathJax를 사용하여 수식을 렌더링합니다.
+        
     }
-
     chatContainer.appendChild(messageElement);
     chatContainer.scrollTop = chatContainer.scrollHeight;
-
     lastMessageSender = isUser ? 'user' : 'ai';
 }
+
 
 
 
@@ -438,7 +456,7 @@ window.addEventListener('load', function () {
                     imagePreview.src = optimizedImageData;
                     base64ImageData = optimizedImageData.split(',')[1]; // base64 데이터 저장
                     set_chat_history([]);
-                    currentStep = 1;
+                    currentStep = 0;
                     setFirstChat(true);
                     console.log('Image base64 data uploaded and optimized');
                     showImagePreview();
